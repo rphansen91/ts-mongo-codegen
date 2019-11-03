@@ -16,11 +16,6 @@ export const mongoTypeDefs = gql`
     order: Int
   }
 
-  input Seek {
-    field: String
-    order: Int
-  }
-
   input IntFilter {
     EQ: Int
     GT: Int
@@ -34,15 +29,15 @@ export const mongoTypeDefs = gql`
   }
 
   input FloatFilter {
-    EQ: Int
-    GT: Int
-    GTE: Int
-    IN: [Int]
-    ALL: [Int]
-    LT: Int
-    LTE: Int
-    NE: Int
-    NIN: [Int]
+    EQ: Float
+    GT: Float
+    GTE: Float
+    IN: [Float]
+    ALL: [Float]
+    LT: Float
+    LTE: Float
+    NE: Float
+    NIN: [Float]
   }
 
   input StringFilter {

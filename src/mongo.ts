@@ -1,4 +1,14 @@
-import { MongoClient } from 'mongodb'
+import { MongoClient, Cursor } from 'mongodb'
+
+interface IPagination {
+  perPage?: number | null
+  page?: number | null
+}
+
+interface ISort {
+  field?: string | null
+  order?: number | null
+}
 
 const graphqlToMongoFilterMap = {
   EQ: '$eq',
@@ -35,6 +45,21 @@ export const mapFilterToMongo = deepFieldTransform((key: string) => {
 export const mapUpdateToMongo = deepFieldTransform((key: string) => {
   return (graphqlToMongoUpdateMap as any)[key] || key
 })
+
+export async function paginateCursor (cursor: Cursor, { pagination, sort }: { pagination: IPagination, sort: ISort }) {
+  if (sort && sort.field) {
+      cursor = cursor.sort({
+        [sort.field]: sort.order || 1
+      })
+  }
+  if (pagination && pagination.perPage && pagination.page) {
+    cursor = cursor.skip(pagination.page * pagination.perPage)
+  }
+  if (pagination && pagination.perPage) {
+    cursor = cursor.limit(pagination.perPage)
+  }
+  return cursor.toArray()
+}
 
 function deepFieldTransform(fn: (key: string) => string) {
   return function t(value: any): any {
