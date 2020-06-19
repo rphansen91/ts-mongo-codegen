@@ -63,4 +63,16 @@ export const mongoTypeDefs = gql`
     NE: Date
     NIN: [Date]
   }
+
+  input ObjectIdFilter {
+    EQ: ObjectId
+    GT: ObjectId
+    GTE: ObjectId
+    IN: [ObjectId]
+    ALL: [ObjectId]
+    LT: ObjectId
+    LTE: ObjectId
+    NE: ObjectId
+    NIN: [ObjectId]
+  }
 `

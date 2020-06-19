@@ -1,6 +1,6 @@
 {
   "name": "ts-mongo-codegen",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "description": "",
   "keywords": [],
   "main": "dist/ts-mongo-codegen.umd.js",
@@ -12,14 +12,15 @@
   "author": "Ryan P. Hansen",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/rphansen91/ts-mongo-codegen"
   },
   "license": "MIT",
   "engines": {
     "node": ">=6.0.0"
   },
   "scripts": {
-    "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx ./src",
+    "fix": "eslint --ext .js,.jsx,.ts,.tsx ./src --fix",
     "prebuild": "rimraf dist",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
     "start": "rollup -c rollup.config.ts -w",
@@ -31,8 +32,9 @@
     "commit": "git-cz",
     "semantic-release": "semantic-release",
     "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
-    "precommit": "lint-staged",
-    "travis-deploy-once": "travis-deploy-once"
+    "travis-deploy-once": "travis-deploy-once",
+    "prepush": "npm run test:prod && npm run build",
+    "commitmsg": "commitlint -E HUSKY_GIT_PARAMS"
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
@@ -63,9 +65,9 @@
     "coverageThreshold": {
       "global": {
         "branches": 90,
-        "functions": 95,
-        "lines": 95,
-        "statements": 95
+        "functions": 90,
+        "lines": 90,
+        "statements": 90
       }
     },
     "collectCoverageFrom": [
@@ -82,47 +84,47 @@
     ]
   },
   "devDependencies": {
-    "@commitlint/cli": "^7.1.2",
-    "@commitlint/config-conventional": "^7.1.2",
-    "@types/jest": "^23.3.2",
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "@types/jest": "^26.0.0",
+    "@types/lodash": "^4.14.155",
     "@types/mongodb": "^3.3.8",
-    "@types/node": "^10.11.0",
+    "@types/node": "^14.0.13",
+    "@typescript-eslint/eslint-plugin": "^3.3.0",
+    "@typescript-eslint/parser": "^3.3.0",
     "colors": "^1.3.2",
-    "commitizen": "^3.0.0",
+    "commitizen": "^4.1.24.1.2",
     "coveralls": "^3.0.2",
-    "cross-env": "^5.2.0",
-    "cz-conventional-changelog": "^2.1.0",
-    "husky": "^1.0.1",
-    "jest": "^23.6.0",
-    "jest-config": "^23.6.0",
-    "lint-staged": "^8.0.0",
-    "lodash.camelcase": "^4.3.0",
-    "prettier": "^1.14.3",
+    "cross-env": "^7.0.2",
+    "cz-conventional-changelog": "^3.2.0",
+    "eslint": "^7.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "husky": "^4.2.5",
+    "jest": "^26.0.1",
+    "jest-config": "^26.0.1",
+    "lint-staged": "^10.2.11",
+    "prettier": "^2.0.5",
     "prompt": "^1.0.0",
-    "replace-in-file": "^3.4.2",
     "rimraf": "^2.6.2",
-    "rollup": "^0.67.0",
-    "rollup-plugin-commonjs": "^9.1.8",
-    "rollup-plugin-json": "^3.1.0",
-    "rollup-plugin-node-resolve": "^3.4.0",
-    "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup-plugin-typescript2": "^0.18.0",
-    "semantic-release": "^15.9.16",
+    "rollup": "^2.17.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-sourcemaps": "^0.6.2",
+    "rollup-plugin-typescript2": "^0.27.1",
+    "semantic-release": "^17.0.8",
     "shelljs": "^0.8.3",
     "travis-deploy-once": "^5.0.9",
-    "ts-jest": "^23.10.2",
-    "ts-node": "^7.0.1",
-    "tslint": "^5.11.0",
-    "tslint-config-prettier": "^1.15.0",
-    "tslint-config-standard": "^8.0.1",
-    "typedoc": "^0.12.0",
-    "typescript": "^3.0.3"
+    "ts-jest": "^26.1.0",
+    "typedoc": "^0.17.7",
+    "typescript": "^3.9.3"
   },
   "dependencies": {
+    "@graphql-codegen/plugin-helpers": "^1.15.4",
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "lodash": "^4.17.15",
-    "mongodb": "^3.3.3",
-    "tslib": "^1.10.0"
+    "mongodb": "^3.5.9"
   }
 }

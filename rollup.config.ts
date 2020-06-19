@@ -1,8 +1,8 @@
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 import sourceMaps from 'rollup-plugin-sourcemaps'
-import camelCase from 'lodash.camelcase'
 import typescript from 'rollup-plugin-typescript2'
+import camelCase from 'lodash/camelcase'
 import json from 'rollup-plugin-json'
 
 const pkg = require('./package.json')
@@ -30,7 +30,7 @@ export default {
     // Allow node_modules resolution, so you can use 'external' to control
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage
-    resolve(),
+    // resolve(),
 
     // Resolve source maps to the original source
     sourceMaps(),

@@ -1,4 +1,4 @@
-import { MongoClient, Cursor } from 'mongodb'
+import { ObjectID, MongoClient, Cursor, MongoClientOptions } from 'mongodb'
 
 interface IPagination {
   perPage?: number | null
@@ -19,10 +19,13 @@ const graphqlToMongoFilterMap = {
   LT: '$lt',
   LTE: '$lte',
   NE: '$ne',
-  NIN: '$nin'
+  NIN: '$nin',
+  TEXT: '$text',
+  SEARCH: '$search'
 }
 
 const graphqlToMongoUpdateMap = {
+  UNSET: '$unset',
   SET: '$set',
   INC: '$inc',
   DEC: '$dec'
@@ -31,9 +34,9 @@ const graphqlToMongoUpdateMap = {
 let mongo: MongoClient
 let promise: Promise<MongoClient>
 
-export async function mongoConnect(uri: string) {
+export async function mongoConnect(uri: string, options?: MongoClientOptions) {
   if (mongo && mongo.isConnected()) return mongo
-  promise = MongoClient.connect(uri)
+  promise = MongoClient.connect(uri, options)
   mongo = await promise
   return mongo
 }
@@ -46,19 +49,22 @@ export const mapUpdateToMongo = deepFieldTransform((key: string) => {
   return (graphqlToMongoUpdateMap as any)[key] || key
 })
 
-export async function paginateCursor (cursor: Cursor, { pagination, sort }: { pagination: IPagination, sort: ISort }) {
+export function paginateCursor(
+  cursor: Cursor,
+  { pagination, sort }: { pagination?: IPagination | null; sort?: ISort | null }
+) {
   if (sort && sort.field) {
-      cursor = cursor.sort({
-        [sort.field]: sort.order || 1
-      })
+    cursor = cursor.sort({
+      [sort.field]: sort.order || 1
+    })
   }
   if (pagination && pagination.perPage && pagination.page) {
-    cursor = cursor.skip(pagination.page * pagination.perPage)
+    cursor = cursor.skip(Math.max(pagination.page - 1, 0) * pagination.perPage)
   }
   if (pagination && pagination.perPage) {
     cursor = cursor.limit(pagination.perPage)
   }
-  return cursor.toArray()
+  return cursor
 }
 
 function deepFieldTransform(fn: (key: string) => string) {
@@ -67,6 +73,7 @@ function deepFieldTransform(fn: (key: string) => string) {
     if (Array.isArray(value)) return value.map(v => t(v))
     if (typeof value !== 'object') return value
     if (value instanceof Date) return value
+    if (value instanceof ObjectID) return value
     return Object.keys(value || {}).reduce((acc: any, key) => {
       acc[fn(key)] = t(value[key])
       return acc
