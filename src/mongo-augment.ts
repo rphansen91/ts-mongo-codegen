@@ -45,7 +45,7 @@ export const augmentResolvers = ({
   return resolvers
 }
 
-export const makeAugmentedSchema = (schema: GraphQLSchema, config: AugmentConfig) => {
+export const makeAugmentedSchema = (schema: GraphQLSchema, config?: AugmentConfig) => {
   const collectionMap = directiveTypeMap(schema, 'collection')
   const [pageMapSchemas, pageMapTypes] = buildPageMap({ collectionMap })
   const [filterMapSchemas, filterMapTypes] = buildFieldMap('filter', { collectionMap })

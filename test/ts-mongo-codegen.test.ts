@@ -10,18 +10,30 @@ import { print, buildSchema, astFromValue, ValueNode, printSchema } from 'graphq
 import { ObjectID } from 'mongodb'
 import { makeAugmentedSchema } from '../src/mongo-augment'
 
+const bookSchema = buildSchema(`
+${addToSchema.loc?.source?.body}
+
+type Book @collection(name: "books") {
+  id: ObjectId
+  title: String @insert @set @unset @filter
+  author: String @insert @set @unset @filter
+}
+
+type Query {
+  root: String
+}
+
+type Mutation {
+  root: String
+}
+`)
 const schema = buildSchema(`
   ${addToSchema.loc?.source?.body}
 
-  type Token {
-    expiration: Int
-    value: String
-  }
-
   type User @collection(name: "user") {
     id: ObjectId
-    # token: Token @insert @set @unset
     email: String @insert @set @unset @filter
+    username: String @insert @set @unset @filter
   }
 
   type Query {
@@ -113,161 +125,19 @@ describe('TS Mongo Codegen', () => {
     expect(graphqlTypeDate.serialize({ toString: () => dateSerialized })).toBe(dateSerialized)
   })
 
+  it('Should build crud operations for book', () => {
+    const augmented = makeAugmentedSchema(bookSchema, {})
+    const printed = printSchema(augmented)
+    expect(printed).toMatchSnapshot('booksAugmentedSchema')
+  })
+
   it('Should build crud operations', () => {
     const augmented = makeAugmentedSchema(schema, {})
     const printed = printSchema(augmented)
-    expect(printed).toBe(`directive @collection(name: String!) on OBJECT
-
-directive @filter on FIELD_DEFINITION
-
-directive @insert on FIELD_DEFINITION
-
-directive @update on FIELD_DEFINITION
-
-directive @unset on FIELD_DEFINITION
-
-directive @set on FIELD_DEFINITION
-
-directive @inc on FIELD_DEFINITION
-
-directive @dec on FIELD_DEFINITION
-
-scalar Date
-
-input DateFilter {
-  EQ: Date
-  GT: Date
-  GTE: Date
-  IN: [Date]
-  ALL: [Date]
-  LT: Date
-  LTE: Date
-  NE: Date
-  NIN: [Date]
-}
-
-input FloatFilter {
-  EQ: Float
-  GT: Float
-  GTE: Float
-  IN: [Float]
-  ALL: [Float]
-  LT: Float
-  LTE: Float
-  NE: Float
-  NIN: [Float]
-}
-
-input IntFilter {
-  EQ: Int
-  GT: Int
-  GTE: Int
-  IN: [Int]
-  ALL: [Int]
-  LT: Int
-  LTE: Int
-  NE: Int
-  NIN: [Int]
-}
-
-type Mutation {
-  root: String
-  insertUser(user: UserInsert!): User
-  insertManyUsers(users: [UserInsert!]!): [User]
-  updateUser(id: ObjectId!, userUnset: UserUnset, userSet: UserSet): User
-  updateManyUsers(ids: [ObjectId!]!, userUnset: UserUnset, userSet: UserSet): [User]
-  removeUser(id: ObjectId!): User
-  removeManyUsers(ids: [ObjectId!]!): [User]
-}
-
-scalar ObjectId
-
-input ObjectIdFilter {
-  EQ: ObjectId
-  GT: ObjectId
-  GTE: ObjectId
-  IN: [ObjectId]
-  ALL: [ObjectId]
-  LT: ObjectId
-  LTE: ObjectId
-  NE: ObjectId
-  NIN: [ObjectId]
-}
-
-input Pagination {
-  perPage: Int
-  page: Int
-}
-
-type Query {
-  root: String
-  findUsers(pagination: Pagination, sort: Sort, filter: UserFilter): UserPage!
-  findUserById(id: ObjectId!): User
-  findUsersByIds(ids: [ObjectId!]!): [User]
-}
-
-input Sort {
-  field: String
-  order: Int
-}
-
-input StringFilter {
-  EQ: String
-  GT: String
-  GTE: String
-  IN: [String]
-  ALL: [String]
-  LT: String
-  LTE: String
-  NE: String
-  NIN: [String]
-}
-
-type Token {
-  expiration: Int
-  value: String
-}
-
-type User {
-  id: ObjectId
-  email: String
-}
-
-input UserFilter {
-  email: String
-}
-
-input UserInsert {
-  email: String
-}
-
-type UserPage {
-  total: Int
-  data: [User]
-}
-
-input UserSet {
-  email: String
-}
-
-input UserUnset {
-  email: String
-}
-`)
+    expect(printed).toMatchSnapshot('usersAugmentedSchema')
   })
 
   it('Should build collection types', () => {
-    expect(plugin(schema, [], {})).toBe(`import { Db, Collection } from 'mongodb'
-
-export type IUserCollection = Collection<User>
-export const getUserCollection = (db: Db) => db.collection<User>('user')
-
-export function mongoCollectionFactory (db: Db) {
-  const user = getUserCollection(db)
-
-  return {
-    user
-  }
-}`)
+    expect(plugin(schema, [], {})).toMatchSnapshot('collectionTypes')
   })
 })
