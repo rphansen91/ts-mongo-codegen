@@ -34,7 +34,9 @@
     "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
     "travis-deploy-once": "travis-deploy-once --pro",
     "prepush": "npm run test:prod && npm run build",
-    "commitmsg": "commitlint -E HUSKY_GIT_PARAMS"
+    "commitmsg": "commitlint -E HUSKY_GIT_PARAMS",
+    "snyk-protect": "snyk protect",
+    "prepare": "yarn run snyk-protect"
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
@@ -136,6 +138,8 @@
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "lodash": "^4.17.15",
-    "mongodb": "^3.5.9"
-  }
+    "mongodb": "^3.5.9",
+    "snyk": "^1.346.0"
+  },
+  "snyk": true
 }
