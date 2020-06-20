@@ -2,9 +2,9 @@
 
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![Greenkeeper badge](https://badges.greenkeeper.io/alexjoverm/typescript-library-starter.svg)](https://greenkeeper.io/)
-[![Travis](https://img.shields.io/travis/rphanen91/ts-mongo-codegen.svg)](https://travis-ci.org/rphanen91/ts-mongo-codegen)
-[![Coveralls](https://img.shields.io/coveralls/rphanen91/ts-mongo-codegen.svg)](https://coveralls.io/github/rphanen91/ts-mongo-codegen)
-[![Dev Dependencies](https://david-dm.org/rphanen91/ts-mongo-codegen/dev-status.svg)](https://david-dm.org/rphanen91/ts-mongo-codegen?type=dev)
+[![Travis](https://travis-ci.com/rphansen91/ts-mongo-codegen.svg?branch=master)](https://travis-ci.com/rphansen91/ts-mongo-codegen)
+[![Coverage Status](https://coveralls.io/repos/github/rphansen91/ts-mongo-codegen/badge.svg?branch=master)](https://coveralls.io/github/rphansen91/ts-mongo-codegen?branch=master)
+[![Dev Dependencies](https://david-dm.org/rphansen91/ts-mongo-codegen.svg)](https://david-dm.org/rphansen91/ts-mongo-codegen)
 [![Donate](https://img.shields.io/badge/donate-paypal-blue.svg)](https://paypal.me/AJoverMorales)
 
 This project generates types for a seamless integration between GraphQL and mongodb.
