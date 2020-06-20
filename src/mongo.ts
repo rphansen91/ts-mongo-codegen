@@ -21,14 +21,14 @@ const graphqlToMongoFilterMap = {
   NE: '$ne',
   NIN: '$nin',
   TEXT: '$text',
-  SEARCH: '$search'
+  SEARCH: '$search',
 }
 
 const graphqlToMongoUpdateMap = {
   UNSET: '$unset',
   SET: '$set',
   INC: '$inc',
-  DEC: '$dec'
+  DEC: '$dec',
 }
 
 let mongo: MongoClient
@@ -55,7 +55,7 @@ export function paginateCursor(
 ) {
   if (sort && sort.field) {
     cursor = cursor.sort({
-      [sort.field]: sort.order || 1
+      [sort.field]: sort.order || 1,
     })
   }
   if (pagination && pagination.perPage && pagination.page) {
@@ -70,7 +70,7 @@ export function paginateCursor(
 function deepFieldTransform(fn: (key: string) => string) {
   return function t(value: any): any {
     if (!value) return value
-    if (Array.isArray(value)) return value.map(v => t(v))
+    if (Array.isArray(value)) return value.map((v) => t(v))
     if (typeof value !== 'object') return value
     if (value instanceof Date) return value
     if (value instanceof ObjectID) return value

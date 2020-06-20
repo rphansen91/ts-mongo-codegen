@@ -1,7 +1,7 @@
 import { GraphQLNamedType, GraphQLSchema, DirectiveNode, GraphQLObjectType } from 'graphql'
 
 export function findDirective(name: string, type: GraphQLNamedType) {
-  return type?.astNode?.directives?.find?.(d => d.name.value === name)
+  return type?.astNode?.directives?.find?.((d) => d.name.value === name)
 }
 
 export function directiveTypeMap(schema: GraphQLSchema, name: string) {

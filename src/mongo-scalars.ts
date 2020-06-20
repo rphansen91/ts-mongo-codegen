@@ -15,7 +15,7 @@ export const graphqlTypeObjectId = new GraphQLScalarType({
       return new ObjectID(ast.value)
     }
     return null
-  }
+  },
 })
 
 export const graphqlTypeDate = new GraphQLScalarType({
@@ -38,5 +38,5 @@ export const graphqlTypeDate = new GraphQLScalarType({
       return new Date(ast.value) // ast value is always in string format
     }
     return null
-  }
+  },
 })

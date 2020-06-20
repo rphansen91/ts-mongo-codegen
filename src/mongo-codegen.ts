@@ -39,7 +39,7 @@ export function mongoCollectionFactory (db: Db) {
 
 type GeneratedCollection = ReturnType<typeof buildMongoCollection>
 function buildMongoCollection(typeName: string, node: DirectiveNode) {
-  const nameArgument = node?.arguments?.find?.(d => d.name.value === 'name')
+  const nameArgument = node?.arguments?.find?.((d) => d.name.value === 'name')
   const collectionName = (nameArgument?.value as StringValueNode)?.value
   const name = camelCase(collectionName)
   const capitalName = capitalize(name)
@@ -60,9 +60,9 @@ function buildMongoCollection(typeName: string, node: DirectiveNode) {
       {
         name,
         value: getCollectionType.name,
-        args: ['db']
-      }
-    ]
+        args: ['db'],
+      },
+    ],
   }
 }
 
@@ -87,6 +87,6 @@ function generateExecute(factory: GeneratedCollection['factories'][0]) {
   return generateDeclaration({
     type: 'const',
     name: factory.name,
-    value: `${factory.value}(${(factory.args ?? []).join(', ')})`
+    value: `${factory.value}(${(factory.args ?? []).join(', ')})`,
   })
 }

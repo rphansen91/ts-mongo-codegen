@@ -14,7 +14,7 @@ import {
   GraphQLNamedType,
   printSchema,
   GraphQLInt,
-  isSchema
+  isSchema,
 } from 'graphql'
 import { makeExecutableSchema, IExecutableSchemaDefinition } from '@graphql-tools/schema'
 import { mapSchema, MapperKind, ObjectTypeMapper } from '@graphql-tools/utils'
@@ -37,7 +37,7 @@ type AugmentConfig = {
 
 export const augmentResolvers = ({
   resolvers,
-  config
+  config,
 }: {
   resolvers: any
   config: AugmentConfig
@@ -72,8 +72,8 @@ export const makeAugmentedSchema = (schema: GraphQLSchema, config?: AugmentConfi
         ...values(unsetMapSchemas).filter(isSchema),
         ...values(setMapSchemas).filter(isSchema),
         ...values(incMapSchemas).filter(isSchema),
-        ...values(decMapSchemas).filter(isSchema)
-      ]
+        ...values(decMapSchemas).filter(isSchema),
+      ],
     }),
     {
       [MapperKind.QUERY]: appendCrudQueryMapper({ collectionMap, filterMapTypes, pageMapTypes }),
@@ -84,8 +84,8 @@ export const makeAugmentedSchema = (schema: GraphQLSchema, config?: AugmentConfi
         unsetMapTypes,
         setMapTypes,
         incMapTypes,
-        decMapTypes
-      })
+        decMapTypes,
+      }),
     }
   )
   // return makeExecutableSchema({
@@ -109,29 +109,29 @@ const buildPageMap = ({ collectionMap }: { collectionMap: CollectionMap }) => {
       name: `${name}Page`,
       fields: {
         total: {
-          type: GraphQLInt
+          type: GraphQLInt,
         },
         data: {
-          type: new GraphQLList(collection)
-        }
-      }
+          type: new GraphQLList(collection),
+        },
+      },
     })
   })
   const schemas = mapValues(types, (type, name) => {
     return new GraphQLSchema({
       types: [type],
-      query: new GraphQLObjectType({ name: 'Query', fields: {} })
+      query: new GraphQLObjectType({ name: 'Query', fields: {} }),
     })
   })
   return tuple(schemas, types)
 }
 const buildFieldMap = (type: string, { collectionMap }: { collectionMap: CollectionMap }) => {
   const schemas = mapValues(collectionMap, (collection, name) => {
-    const fields = collection.astNode?.fields?.filter(field => {
-      return field.directives?.find(d => d.name.value === type)
+    const fields = collection.astNode?.fields?.filter((field) => {
+      return field.directives?.find((d) => d.name.value === type)
     })
     const types = fields
-      ?.map(field => `${field.name.value}: ${get('type.name.value', field)}`)
+      ?.map((field) => `${field.name.value}: ${get('type.name.value', field)}`)
       .join('\n')
     if (!types?.length) return null
     return buildSchema(`input ${name}${capitalize(type)} {
@@ -148,7 +148,7 @@ const buildFieldMap = (type: string, { collectionMap }: { collectionMap: Collect
 const appendCrudQueryMapper = ({
   collectionMap,
   filterMapTypes,
-  pageMapTypes
+  pageMapTypes,
 }: {
   collectionMap: CollectionMap
   pageMapTypes: { [x: string]: GraphQLObjectType }
@@ -158,44 +158,44 @@ const appendCrudQueryMapper = ({
   const pagination = schema.getType('Pagination') as GraphQLInputObjectType
   const sort = schema.getType('Sort') as GraphQLInputObjectType
   const appendFields = Object.keys(collectionMap)
-    .map(name => {
+    .map((name) => {
       const collection = collectionMap[name]
       const find = {
         type: new GraphQLNonNull(pageMapTypes[name]),
         args: {
           pagination: {
-            type: pagination
+            type: pagination,
           },
           sort: {
-            type: sort
-          }
-        } as any
+            type: sort,
+          },
+        } as any,
       }
       if (filterMapTypes[name]) {
         find.args.filter = {
-          type: filterMapTypes[name]
+          type: filterMapTypes[name],
         }
       }
       const findById = {
         type: collection,
         args: {
           id: {
-            type: new GraphQLNonNull(graphqlTypeObjectId)
-          }
-        }
+            type: new GraphQLNonNull(graphqlTypeObjectId),
+          },
+        },
       }
       const findByIds = {
         type: new GraphQLList(collection),
         args: {
           ids: {
-            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(graphqlTypeObjectId)))
-          }
-        }
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(graphqlTypeObjectId))),
+          },
+        },
       }
       return {
         [`find${pluralize(name)}`]: find,
         [`find${name}ById`]: findById,
-        [`find${pluralize(name)}ByIds`]: findByIds
+        [`find${pluralize(name)}ByIds`]: findByIds,
       }
     })
     .reduce((acc, fields) => ({ ...acc, ...fields }), {})
@@ -203,8 +203,8 @@ const appendCrudQueryMapper = ({
     ...config,
     fields: {
       ...config.fields,
-      ...appendFields
-    }
+      ...appendFields,
+    },
   })
 }
 
@@ -215,7 +215,7 @@ const appendCrudMutationMapper = ({
   unsetMapTypes,
   setMapTypes,
   incMapTypes,
-  decMapTypes
+  decMapTypes,
 }: {
   collectionMap: CollectionMap
   insertMapTypes: { [x: string]: GraphQLInputObjectType | null }
@@ -227,7 +227,7 @@ const appendCrudMutationMapper = ({
 }): ObjectTypeMapper => (type: GraphQLObjectType, schema: GraphQLSchema) => {
   const config = type.toConfig()
   const appendFields = Object.keys(collectionMap)
-    .map(name => {
+    .map((name) => {
       const collection = collectionMap[name]
       const mutations: { [x: string]: any } = {}
       const insertType = insertMapTypes[name]
@@ -240,17 +240,17 @@ const appendCrudMutationMapper = ({
           type: collection,
           args: {
             [camelCase(name)]: {
-              type: new GraphQLNonNull(insertType)
-            }
-          }
+              type: new GraphQLNonNull(insertType),
+            },
+          },
         }
         mutations[`insertMany${pluralize(name)}`] = {
           type: new GraphQLList(collection),
           args: {
             [pluralize(camelCase(name))]: {
-              type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(insertType)))
-            }
-          }
+              type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(insertType))),
+            },
+          },
         }
       }
       if (unsetType || setType || incType || decType) {
@@ -263,36 +263,36 @@ const appendCrudMutationMapper = ({
           type: collection,
           args: {
             id: {
-              type: new GraphQLNonNull(graphqlTypeObjectId)
+              type: new GraphQLNonNull(graphqlTypeObjectId),
             },
-            ...updateArgs
-          }
+            ...updateArgs,
+          },
         }
         mutations[`updateMany${pluralize(name)}`] = {
           type: new GraphQLList(collection),
           args: {
             ids: {
-              type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(graphqlTypeObjectId)))
+              type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(graphqlTypeObjectId))),
             },
-            ...updateArgs
-          }
+            ...updateArgs,
+          },
         }
       }
       mutations[`remove${name}`] = {
         type: collection,
         args: {
           id: {
-            type: new GraphQLNonNull(graphqlTypeObjectId)
-          }
-        }
+            type: new GraphQLNonNull(graphqlTypeObjectId),
+          },
+        },
       }
       mutations[`removeMany${pluralize(name)}`] = {
         type: new GraphQLList(collection),
         args: {
           ids: {
-            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(graphqlTypeObjectId)))
-          }
-        }
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(graphqlTypeObjectId))),
+          },
+        },
       }
       return mutations
     })
@@ -301,8 +301,8 @@ const appendCrudMutationMapper = ({
     ...config,
     fields: {
       ...config.fields,
-      ...appendFields
-    }
+      ...appendFields,
+    },
   })
 }
 
