@@ -5,6 +5,13 @@ export const mongoTypeDefs = gql`
   scalar ObjectId
 
   directive @collection(name: String!) on OBJECT
+  directive @filter on FIELD_DEFINITION
+  directive @insert on FIELD_DEFINITION
+  directive @update on FIELD_DEFINITION
+  directive @unset on FIELD_DEFINITION
+  directive @set on FIELD_DEFINITION
+  directive @inc on FIELD_DEFINITION
+  directive @dec on FIELD_DEFINITION
 
   input Pagination {
     perPage: Int

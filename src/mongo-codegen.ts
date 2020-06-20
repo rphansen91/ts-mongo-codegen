@@ -1,6 +1,7 @@
 import { mongoTypeDefs } from './mongo-types'
 import { PluginFunction } from '@graphql-codegen/plugin-helpers'
-import { StringValueNode, DirectiveNode, GraphQLNamedType } from 'graphql'
+import { StringValueNode, DirectiveNode } from 'graphql'
+import { findDirective } from './gql-utils'
 import capitalize from 'lodash/capitalize'
 import camelCase from 'lodash/camelCase'
 
@@ -34,10 +35,6 @@ export function mongoCollectionFactory (db: Db) {
 }`
 
   return content
-}
-
-function findDirective(name: string, type: GraphQLNamedType) {
-  return type?.astNode?.directives?.find?.(d => d.name.value === name)
 }
 
 type GeneratedCollection = ReturnType<typeof buildMongoCollection>
