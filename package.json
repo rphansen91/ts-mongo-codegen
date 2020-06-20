@@ -1,6 +1,6 @@
 {
   "name": "ts-mongo-codegen",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "",
   "keywords": [],
   "main": "dist/ts-mongo-codegen.umd.js",
@@ -50,6 +50,11 @@
   "jest": {
     "transform": {
       ".(ts|tsx)": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.test.json"
+      }
     },
     "testEnvironment": "node",
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
