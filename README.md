@@ -2,26 +2,76 @@
 
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![Greenkeeper badge](https://badges.greenkeeper.io/alexjoverm/typescript-library-starter.svg)](https://greenkeeper.io/)
-[![Travis](https://img.shields.io/travis/rphanen91/ts-mongo-codegen.svg)](https://travis-ci.org/alexjoverm/typescript-library-starter)
-[![Coveralls](https://img.shields.io/coveralls/alexjoverm/typescript-library-starter.svg)](https://coveralls.io/github/alexjoverm/typescript-library-starter)
-[![Dev Dependencies](https://david-dm.org/alexjoverm/typescript-library-starter/dev-status.svg)](https://david-dm.org/alexjoverm/typescript-library-starter?type=dev)
+[![Travis](https://img.shields.io/travis/rphanen91/ts-mongo-codegen.svg)](https://travis-ci.org/rphanen91/ts-mongo-codegen)
+[![Coveralls](https://img.shields.io/coveralls/rphanen91/ts-mongo-codegen.svg)](https://coveralls.io/github/rphanen91/ts-mongo-codegen)
+[![Dev Dependencies](https://david-dm.org/rphanen91/ts-mongo-codegen/dev-status.svg)](https://david-dm.org/rphanen91/ts-mongo-codegen?type=dev)
 [![Donate](https://img.shields.io/badge/donate-paypal-blue.svg)](https://paypal.me/AJoverMorales)
 
-A starter project that makes creating a TypeScript library extremely easy.
-
-![](https://i.imgur.com/opUmHp0.png)
+This project generates types for a seamless integration between GraphQL and mongodb.
 
 ### Usage
 
 ```bash
-git clone https://github.com/alexjoverm/typescript-library-starter.git YOURFOLDERNAME
-cd YOURFOLDERNAME
-
-# Run npm install and write your library name when asked. That's all!
-npm install
+yarn add ts-mongo-codegen
 ```
 
-**Start coding!** `package.json` and entry files are already set up for you, so don't worry about linking to your main file, typings, etc. Just keep those files with the same name.
+**./codegen.json** 
+
+```json
+{
+  "schema": "http://localhost:8082",
+  "generates": {
+    "./src/gql/types.ts": {
+      "plugins": [
+        "typescript",
+        "typescript-operations",
+        "typescript-resolvers",
+        "ts-mongo-codegen",
+      ]
+    }
+  }
+}
+
+```
+
+**./gql/books.schema**
+
+```graphql
+type Book @collection(name: "books") {
+  id: ObjectId
+  title: String
+  author: String
+}
+```
+
+**./src/stores/mongo.ts** 
+
+```javascript
+import { connect } from 'ts-mongo-codegen'
+import { mongoFactory } from '../gql/types'
+
+export async function mongoStore(url: string, name: string) {
+  const db = (await connect(url)).db(name)
+  const datastore = mongoFactory(db)
+  // datastore.books is a mongo collection
+  return datastore
+}
+
+```
+
+### Upcoming Release
+
+-   Augment your schema with CRUD operations for your collections.
+-   Generate a changelog to keep a running list of changes to a document
+-   Generate subscriptions
+
+Turns This
+
+![Example Schema](/example_schema.png)
+
+Into This
+
+![Into Tis](/example_augmented.png)
 
 ### Features
 
