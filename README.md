@@ -1,11 +1,12 @@
 # TypeScript Mongo Codegen
 
-[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
-[![Greenkeeper badge](https://badges.greenkeeper.io/alexjoverm/typescript-library-starter.svg)](https://greenkeeper.io/)
+[![npm](https://img.shields.io/npm/v/ts-mongo-codegen.svg)](https://www.npmjs.com/package/ts-mongo-codegen)
+[![downloads](https://img.shields.io/npm/dw/ts-mongo-codegen.svg)](https://www.npmjs.com/package/ts-mongo-codegen)
 [![Travis](https://travis-ci.com/rphansen91/ts-mongo-codegen.svg?branch=master)](https://travis-ci.com/rphansen91/ts-mongo-codegen)
 [![Coverage Status](https://coveralls.io/repos/github/rphansen91/ts-mongo-codegen/badge.svg?branch=master)](https://coveralls.io/github/rphansen91/ts-mongo-codegen?branch=master)
 [![Dev Dependencies](https://david-dm.org/rphansen91/ts-mongo-codegen.svg)](https://david-dm.org/rphansen91/ts-mongo-codegen)
-[![Donate](https://img.shields.io/badge/donate-paypal-blue.svg)](https://paypal.me/AJoverMorales)
+[![Known Vulnerabilities](https://snyk.io/test/github/rphansen91/ts-mongo-codegen/badge.svg?targetFile=package.json)](https://snyk.io/test/github/rphansen91/ts-mongo-codegen?targetFile=package.json)
+[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
 This project generates types for a seamless integration between GraphQL and mongodb.
 
