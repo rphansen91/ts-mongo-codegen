@@ -128,7 +128,8 @@
     "travis-deploy-once": "^5.0.9",
     "ts-jest": "^26.1.0",
     "typedoc": "^0.17.7",
-    "typescript": "^3.9.3"
+    "typescript": "^3.9.3",
+    "snyk": "^1.346.0"
   },
   "dependencies": {
     "@graphql-codegen/plugin-helpers": "^1.15.4",
@@ -138,8 +139,7 @@
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "lodash": "^4.17.15",
-    "mongodb": "^3.5.9",
-    "snyk": "^1.346.0"
+    "mongodb": "^3.5.9"
   },
   "snyk": true
 }
