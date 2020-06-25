@@ -13,7 +13,7 @@ import { makeAugmentedSchema } from '../src/mongo-augment'
 const bookSchema = buildSchema(`
 ${addToSchema.loc?.source?.body}
 
-type Book @collection(name: "books") {
+type Book @collection(name: "books", crud: true) {
   id: ObjectId
   title: String @insert @set @unset @filter
   author: String @insert @set @unset @filter
@@ -30,7 +30,7 @@ type Mutation {
 const schema = buildSchema(`
   ${addToSchema.loc?.source?.body}
 
-  type User @collection(name: "user") {
+  type User @collection(name: "users", crud: true) {
     id: ObjectId
     email: String @insert @set @unset @filter
     username: String @insert @set @unset @filter
@@ -137,7 +137,11 @@ describe('TS Mongo Codegen', () => {
     expect(printed).toMatchSnapshot('usersAugmentedSchema')
   })
 
-  it('Should build collection types', () => {
+  it('Should build book collection types', () => {
+    expect(plugin(bookSchema, [], {})).toMatchSnapshot('collectionBookTypes')
+  })
+
+  it('Should build user collection types', () => {
     expect(plugin(schema, [], {})).toMatchSnapshot('collectionTypes')
   })
 })

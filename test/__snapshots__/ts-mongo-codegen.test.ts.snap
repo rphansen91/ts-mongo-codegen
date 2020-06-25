@@ -1,22 +1,135 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`TS Mongo Codegen Should build collection types: collectionTypes 1`] = `
-"import { Db, Collection } from 'mongodb'
+exports[`TS Mongo Codegen Should build book collection types: collectionBookTypes 1`] = `
+"import { Db, Collection, ObjectID } from 'mongodb'
+import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from 'ts-mongo-codegen'
+import keyBy from 'lodash/keyBy'
 
-export type IUserCollection = Collection<User>
-export const getUserCollection = (db: Db) => db.collection<User>('user')
+export const fromMongoId = (obj: any) => {
+  if (obj && obj._id) return obj._id.toHexString()
+  if (obj && obj.id) return obj.id.toHexString()
+  return ''
+}
+
+export type IBooksCollection = Collection<Book>
+
+export type IBookContext = { books: IBooksCollection }
+
+export const getBooksCollection = (db: Db) => db.collection<Book>('books')
+
+export const bookResolvers: BookResolvers<IBookContext> = { id: fromMongoId }
+
+export type IBookFilterArgs = { title?: string, author?: string }
+
+export type IBookFindArgs = { filter: IBookFilterArgs, pagination: Pagination, sort: Sort }
+
+export type IBookFindByIdArgs = { id: ObjectID }
+
+export type IBooksFindByIdsArgs = { ids: ObjectID[] }
+
+export const bookQueryResolvers = {
+  async findBooks(_: any, { filter, pagination, sort }: IBookFindArgs, context: IBookContext) {
+    const query = mapFilterToMongo(filter || {})
+    const total = () => context.books.find(query).count()
+    const data = () => paginateCursor(
+      context.books.find(query),
+      { pagination, sort }
+    )
+    return {
+      total, 
+      data
+    }
+  },
+  async findBookById(_: any, { id }: IBookFindByIdArgs, context: IBookContext) {
+    return context.books.findOne({ _id: id })
+  },
+  async findBooksByIds(_: any, { ids }: IBooksFindByIdsArgs, context: IBookContext) {
+    const books = await context.books.find({ _id: { $in: ids } }).toArray()
+    const booksById = keyBy(books, fromMongoId)
+    return ids.map(id => id.toHexString()).map(id => booksById[id])
+  },
+}
+
+export type IBookInsert = { title?: string, author?: string }
+
+export type IBookInsertArgs = { book: IBookInsert }
+
+export type IBooksInsertManyArgs = { books: IBookInsert[] }
+
+export type IBookSetArgs = { title?: string, author?: string }
+
+export type IBookUnsetArgs = { title?: 1, author?: 1 }
+
+export type IBookDecArgs = {  }
+
+export type IBookIncArgs = {  }
+
+export type IBookUpdateArgs = { id: ObjectID, bookSet: IBookSetArgs, bookUnset: IBookUnsetArgs }
+
+export type IBooksUpdateManyArgs = { ids: ObjectID[], bookSet: IBookSetArgs, bookUnset: IBookUnsetArgs }
+
+export type IBookRemoveArgs = { id: ObjectID }
+
+export type IBooksRemoveManyArgs = { ids: ObjectID[] }
+
+export const bookMutationResolvers = {
+  async insertBook(_: any, { book }: IBookInsertArgs, context: IBookContext) {
+    const response = await context.books.insertOne(book)
+    return response.ops[0]
+  },
+  async insertManyBooks(_: any, { books }: IBooksInsertManyArgs, context: IBookContext) {
+    const response = await context.books.insertMany(books)
+    const cursor = await context.books.find({
+      _id: {
+        $in: response.insertedIds
+      }
+    })
+    return cursor.toArray()
+  },
+  async updateBook(_: any, { id, bookSet, bookUnset }: IBookUpdateArgs, context: IBookContext) {
+      const { value } = await context.books.findOneAndUpdate({ 
+        _id: id 
+      }, {
+        $set: bookSet, $unset: bookUnset
+      }, {
+        returnOriginal: false
+      })
+      return value || null
+  },
+  async updateManyBooks(_: any, { ids, bookSet, bookUnset }: IBooksUpdateManyArgs, context: IBookContext) {
+    await context.books.updateMany(
+      { _id: { $in: ids } },
+      {
+        $set: bookSet, $unset: bookUnset
+      }
+    )
+    const books = await context.books.find({ _id: { $in: ids } }).toArray()
+    const booksById = keyBy(books, fromMongoId)
+    return ids.map(id => id.toHexString()).map(id => booksById[id])
+  },
+  async removeBook(_: any, { id }: IBookRemoveArgs, context: IBookContext) {
+    const { value } = await context.books.findOneAndDelete({ _id: id })
+    return value || null
+  },
+  async removeManyBooks(_: any, { ids }: IBooksRemoveManyArgs, context: IBookContext) {
+    const books = await context.books.find({ _id: { $in: ids } }).toArray()
+    const booksById = keyBy(books, fromMongoId)
+    await context.books.deleteMany({ _id: { $in: ids } })
+    return ids.map(id => id.toHexString()).map(id => booksById[id])
+  },
+}
 
 export function mongoCollectionFactory (db: Db) {
-  const user = getUserCollection(db)
+  const books = getBooksCollection(db)
 
   return {
-    user
+    books
   }
 }"
 `;
 
 exports[`TS Mongo Codegen Should build crud operations for book: booksAugmentedSchema 1`] = `
-"directive @collection(name: String!) on OBJECT
+"directive @collection(name: String!, crud: Boolean) on OBJECT
 
 directive @filter on FIELD_DEFINITION
 
@@ -157,7 +270,7 @@ input StringFilter {
 `;
 
 exports[`TS Mongo Codegen Should build crud operations: usersAugmentedSchema 1`] = `
-"directive @collection(name: String!) on OBJECT
+"directive @collection(name: String!, crud: Boolean) on OBJECT
 
 directive @filter on FIELD_DEFINITION
 
@@ -295,4 +408,132 @@ input UserUnset {
   username: String
 }
 "
+`;
+
+exports[`TS Mongo Codegen Should build user collection types: collectionTypes 1`] = `
+"import { Db, Collection, ObjectID } from 'mongodb'
+import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from 'ts-mongo-codegen'
+import keyBy from 'lodash/keyBy'
+
+export const fromMongoId = (obj: any) => {
+  if (obj && obj._id) return obj._id.toHexString()
+  if (obj && obj.id) return obj.id.toHexString()
+  return ''
+}
+
+export type IUsersCollection = Collection<User>
+
+export type IUserContext = { users: IUsersCollection }
+
+export const getUsersCollection = (db: Db) => db.collection<User>('users')
+
+export const userResolvers: UserResolvers<IUserContext> = { id: fromMongoId }
+
+export type IUserFilterArgs = { email?: string, username?: string }
+
+export type IUserFindArgs = { filter: IUserFilterArgs, pagination: Pagination, sort: Sort }
+
+export type IUserFindByIdArgs = { id: ObjectID }
+
+export type IUsersFindByIdsArgs = { ids: ObjectID[] }
+
+export const userQueryResolvers = {
+  async findUsers(_: any, { filter, pagination, sort }: IUserFindArgs, context: IUserContext) {
+    const query = mapFilterToMongo(filter || {})
+    const total = () => context.users.find(query).count()
+    const data = () => paginateCursor(
+      context.users.find(query),
+      { pagination, sort }
+    )
+    return {
+      total, 
+      data
+    }
+  },
+  async findUserById(_: any, { id }: IUserFindByIdArgs, context: IUserContext) {
+    return context.users.findOne({ _id: id })
+  },
+  async findUsersByIds(_: any, { ids }: IUsersFindByIdsArgs, context: IUserContext) {
+    const users = await context.users.find({ _id: { $in: ids } }).toArray()
+    const usersById = keyBy(users, fromMongoId)
+    return ids.map(id => id.toHexString()).map(id => usersById[id])
+  },
+}
+
+export type IUserInsert = { email?: string, username?: string }
+
+export type IUserInsertArgs = { user: IUserInsert }
+
+export type IUsersInsertManyArgs = { users: IUserInsert[] }
+
+export type IUserSetArgs = { email?: string, username?: string }
+
+export type IUserUnsetArgs = { email?: 1, username?: 1 }
+
+export type IUserDecArgs = {  }
+
+export type IUserIncArgs = {  }
+
+export type IUserUpdateArgs = { id: ObjectID, userSet: IUserSetArgs, userUnset: IUserUnsetArgs }
+
+export type IUsersUpdateManyArgs = { ids: ObjectID[], userSet: IUserSetArgs, userUnset: IUserUnsetArgs }
+
+export type IUserRemoveArgs = { id: ObjectID }
+
+export type IUsersRemoveManyArgs = { ids: ObjectID[] }
+
+export const userMutationResolvers = {
+  async insertUser(_: any, { user }: IUserInsertArgs, context: IUserContext) {
+    const response = await context.users.insertOne(user)
+    return response.ops[0]
+  },
+  async insertManyUsers(_: any, { users }: IUsersInsertManyArgs, context: IUserContext) {
+    const response = await context.users.insertMany(users)
+    const cursor = await context.users.find({
+      _id: {
+        $in: response.insertedIds
+      }
+    })
+    return cursor.toArray()
+  },
+  async updateUser(_: any, { id, userSet, userUnset }: IUserUpdateArgs, context: IUserContext) {
+      const { value } = await context.users.findOneAndUpdate({ 
+        _id: id 
+      }, {
+        $set: userSet, $unset: userUnset
+      }, {
+        returnOriginal: false
+      })
+      return value || null
+  },
+  async updateManyUsers(_: any, { ids, userSet, userUnset }: IUsersUpdateManyArgs, context: IUserContext) {
+    await context.users.updateMany(
+      { _id: { $in: ids } },
+      {
+        $set: userSet, $unset: userUnset
+      }
+    )
+    const users = await context.users.find({ _id: { $in: ids } }).toArray()
+    const usersById = keyBy(users, fromMongoId)
+    return ids.map(id => id.toHexString()).map(id => usersById[id])
+  },
+  async removeUser(_: any, { id }: IUserRemoveArgs, context: IUserContext) {
+    const { value } = await context.users.findOneAndDelete({ _id: id })
+    return value || null
+  },
+  async removeManyUsers(_: any, { ids }: IUsersRemoveManyArgs, context: IUserContext) {
+    const users = await context.users.find({ _id: { $in: ids } }).toArray()
+    const usersById = keyBy(users, fromMongoId)
+    await context.users.deleteMany({ _id: { $in: ids } })
+    return ids.map(id => id.toHexString()).map(id => usersById[id])
+  },
+}
+
+export function mongoCollectionFactory (db: Db) {
+  const users = getUsersCollection(db)
+
+  return {
+    users
+  }
+}"
 `;

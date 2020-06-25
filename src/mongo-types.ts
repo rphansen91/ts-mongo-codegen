@@ -4,7 +4,7 @@ export const mongoTypeDefs = gql`
   scalar Date
   scalar ObjectId
 
-  directive @collection(name: String!) on OBJECT
+  directive @collection(name: String!, crud: Boolean) on OBJECT
   directive @filter on FIELD_DEFINITION
   directive @insert on FIELD_DEFINITION
   directive @update on FIELD_DEFINITION

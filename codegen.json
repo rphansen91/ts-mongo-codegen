@@ -1,0 +1,17 @@
+{
+  "schema": [
+    "./src/mongo-types.ts",
+    "./tools/example-server.ts"
+  ],
+  "overwrites": true,
+  "generates": {
+    "./tools/example-types.ts": {
+      "plugins": [
+        "typescript",
+        "typescript-operations",
+        "typescript-resolvers",
+        "./dist/ts-mongo-codegen.umd.js"
+      ]
+    }
+  }
+}
