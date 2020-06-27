@@ -8,7 +8,8 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/rphansen91/ts-mongo-codegen/badge.svg?targetFile=package.json)](https://snyk.io/test/github/rphansen91/ts-mongo-codegen?targetFile=package.json)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
-This project generates types for a seamless integration between GraphQL and mongodb.
+This project generates types for a seamless integration between GraphQL and MongoDB.
+[Generate All CRUD and Pagination Operations (10 minutes or less)](https://elevatejs.com/blog/ts-mongo-codegen/)
 
 ### Usage
 
