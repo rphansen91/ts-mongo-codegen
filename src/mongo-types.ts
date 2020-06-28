@@ -1,9 +1,6 @@
 import gql from 'graphql-tag'
 
 export const mongoTypeDefs = gql`
-  scalar Date
-  scalar ObjectId
-
   directive @collection(name: String!, crud: Boolean) on OBJECT
   directive @filter on FIELD_DEFINITION
   directive @insert on FIELD_DEFINITION
@@ -22,6 +19,9 @@ export const mongoTypeDefs = gql`
     field: String
     order: Int
   }
+
+  scalar Date
+  scalar ObjectId
 
   input IntFilter {
     EQ: Int

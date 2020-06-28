@@ -198,11 +198,11 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']>;
   Mutation: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  Date: ResolverTypeWrapper<Scalars['Date']>;
-  ObjectId: ResolverTypeWrapper<Scalars['ObjectId']>;
   Pagination: Pagination;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Sort: Sort;
+  Date: ResolverTypeWrapper<Scalars['Date']>;
+  ObjectId: ResolverTypeWrapper<Scalars['ObjectId']>;
   IntFilter: IntFilter;
   FloatFilter: FloatFilter;
   Float: ResolverTypeWrapper<Scalars['Float']>;
@@ -219,11 +219,11 @@ export type ResolversParentTypes = {
   String: Scalars['String'];
   Mutation: {};
   Boolean: Scalars['Boolean'];
-  Date: Scalars['Date'];
-  ObjectId: Scalars['ObjectId'];
   Pagination: Pagination;
   Int: Scalars['Int'];
   Sort: Sort;
+  Date: Scalars['Date'];
+  ObjectId: Scalars['ObjectId'];
   IntFilter: IntFilter;
   FloatFilter: FloatFilter;
   Float: Scalars['Float'];
@@ -330,6 +330,7 @@ export type DirectiveResolvers<ContextType = any> = {
 export type IDirectiveResolvers<ContextType = any> = DirectiveResolvers<ContextType>;
 import { Db, Collection, ObjectID } from 'mongodb'
 import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from '../src/ts-mongo-codegen'
+import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
 export const fromMongoId = (obj: any) => {
@@ -346,7 +347,7 @@ export const getAuthorsCollection = (db: Db) => db.collection<Author>('authors')
 
 export const authorResolvers: AuthorResolvers<IAuthorContext> = { id: fromMongoId }
 
-export type IAuthorFilterArgs = { name?: string }
+export type IAuthorFilterArgs = { name?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; } }
 
 export type IAuthorFindArgs = { filter: IAuthorFilterArgs, pagination: Pagination, sort: Sort }
 
@@ -408,7 +409,7 @@ export const authorMutationResolvers = {
     const response = await context.authors.insertMany(authors)
     const cursor = await context.authors.find({
       _id: {
-        $in: response.insertedIds
+        $in: values(response.insertedIds)
       }
     })
     return cursor.toArray()
@@ -454,7 +455,7 @@ export const getBooksCollection = (db: Db) => db.collection<Book>('books')
 
 export const bookResolvers: BookResolvers<IBookContext> = { id: fromMongoId }
 
-export type IBookFilterArgs = { title?: string, author?: string }
+export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; } }
 
 export type IBookFindArgs = { filter: IBookFilterArgs, pagination: Pagination, sort: Sort }
 
@@ -516,7 +517,7 @@ export const bookMutationResolvers = {
     const response = await context.books.insertMany(books)
     const cursor = await context.books.find({
       _id: {
-        $in: response.insertedIds
+        $in: values(response.insertedIds)
       }
     })
     return cursor.toArray()
