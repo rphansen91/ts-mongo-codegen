@@ -42,6 +42,7 @@ export const plugin: PluginFunction<Partial<Config>> = (schema, documents, confi
 
   const content = `import { Db, Collection, ObjectID } from 'mongodb'
 import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from 'ts-mongo-codegen'
+import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
 export const fromMongoId = (obj: any) => {
@@ -249,7 +250,7 @@ function generateMutationResolvers(
     const response = await context.${collectionName}.insertMany(${pluralize(camelTypeName)})
     const cursor = await context.${collectionName}.find({
       _id: {
-        $in: response.insertedIds
+        $in: values(response.insertedIds)
       }
     })
     return cursor.toArray()

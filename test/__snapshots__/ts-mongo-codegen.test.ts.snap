@@ -3,6 +3,7 @@
 exports[`TS Mongo Codegen Should build book collection types: collectionBookTypes 1`] = `
 "import { Db, Collection, ObjectID } from 'mongodb'
 import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from 'ts-mongo-codegen'
+import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
 export const fromMongoId = (obj: any) => {
@@ -34,7 +35,7 @@ export const bookQueryResolvers = {
     const data = () => paginateCursor(
       context.books.find(query),
       { pagination, sort }
-    )
+    ).toArray()
     return {
       total, 
       data
@@ -64,9 +65,9 @@ export type IBookDecArgs = {  }
 
 export type IBookIncArgs = {  }
 
-export type IBookUpdateArgs = { id: ObjectID, bookSet: IBookSetArgs, bookUnset: IBookUnsetArgs }
+export type IBookUpdateArgs = { id: ObjectID, bookSet: IBookSetArgs }
 
-export type IBooksUpdateManyArgs = { ids: ObjectID[], bookSet: IBookSetArgs, bookUnset: IBookUnsetArgs }
+export type IBooksUpdateManyArgs = { ids: ObjectID[], bookSet: IBookSetArgs }
 
 export type IBookRemoveArgs = { id: ObjectID }
 
@@ -81,26 +82,26 @@ export const bookMutationResolvers = {
     const response = await context.books.insertMany(books)
     const cursor = await context.books.find({
       _id: {
-        $in: response.insertedIds
+        $in: values(response.insertedIds)
       }
     })
     return cursor.toArray()
   },
-  async updateBook(_: any, { id, bookSet, bookUnset }: IBookUpdateArgs, context: IBookContext) {
+  async updateBook(_: any, { id, bookSet }: IBookUpdateArgs, context: IBookContext) {
       const { value } = await context.books.findOneAndUpdate({ 
         _id: id 
       }, {
-        $set: bookSet, $unset: bookUnset
+        $set: bookSet
       }, {
         returnOriginal: false
       })
       return value || null
   },
-  async updateManyBooks(_: any, { ids, bookSet, bookUnset }: IBooksUpdateManyArgs, context: IBookContext) {
+  async updateManyBooks(_: any, { ids, bookSet }: IBooksUpdateManyArgs, context: IBookContext) {
     await context.books.updateMany(
       { _id: { $in: ids } },
       {
-        $set: bookSet, $unset: bookUnset
+        $set: bookSet
       }
     )
     const books = await context.books.find({ _id: { $in: ids } }).toArray()
@@ -413,6 +414,7 @@ input UserUnset {
 exports[`TS Mongo Codegen Should build user collection types: collectionTypes 1`] = `
 "import { Db, Collection, ObjectID } from 'mongodb'
 import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from 'ts-mongo-codegen'
+import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
 export const fromMongoId = (obj: any) => {
@@ -444,7 +446,7 @@ export const userQueryResolvers = {
     const data = () => paginateCursor(
       context.users.find(query),
       { pagination, sort }
-    )
+    ).toArray()
     return {
       total, 
       data
@@ -474,9 +476,9 @@ export type IUserDecArgs = {  }
 
 export type IUserIncArgs = {  }
 
-export type IUserUpdateArgs = { id: ObjectID, userSet: IUserSetArgs, userUnset: IUserUnsetArgs }
+export type IUserUpdateArgs = { id: ObjectID, userSet: IUserSetArgs }
 
-export type IUsersUpdateManyArgs = { ids: ObjectID[], userSet: IUserSetArgs, userUnset: IUserUnsetArgs }
+export type IUsersUpdateManyArgs = { ids: ObjectID[], userSet: IUserSetArgs }
 
 export type IUserRemoveArgs = { id: ObjectID }
 
@@ -491,26 +493,26 @@ export const userMutationResolvers = {
     const response = await context.users.insertMany(users)
     const cursor = await context.users.find({
       _id: {
-        $in: response.insertedIds
+        $in: values(response.insertedIds)
       }
     })
     return cursor.toArray()
   },
-  async updateUser(_: any, { id, userSet, userUnset }: IUserUpdateArgs, context: IUserContext) {
+  async updateUser(_: any, { id, userSet }: IUserUpdateArgs, context: IUserContext) {
       const { value } = await context.users.findOneAndUpdate({ 
         _id: id 
       }, {
-        $set: userSet, $unset: userUnset
+        $set: userSet
       }, {
         returnOriginal: false
       })
       return value || null
   },
-  async updateManyUsers(_: any, { ids, userSet, userUnset }: IUsersUpdateManyArgs, context: IUserContext) {
+  async updateManyUsers(_: any, { ids, userSet }: IUsersUpdateManyArgs, context: IUserContext) {
     await context.users.updateMany(
       { _id: { $in: ids } },
       {
-        $set: userSet, $unset: userUnset
+        $set: userSet
       }
     )
     const users = await context.users.find({ _id: { $in: ids } }).toArray()

@@ -160,7 +160,7 @@ export function tuple<A, B>(a: A, b: B) {
 export function gqlTypeToTypescript(type: GraphQLInputObjectType | null) {
   const fields = type?.getFields?.() ?? {}
   return `{ ${Object.keys(fields)
-    .map((k) => `${k}?: ${fields[k].type.toString().toLowerCase()}`)
+    .map((k) => `${k}?: ${gqlScalarToTypescript(fields[k].type.toString())}`)
     .join(', ')} }`
 }
 
@@ -169,4 +169,18 @@ export function gqlTypeToTypescriptUnset(type: GraphQLInputObjectType | null) {
   return `{ ${Object.keys(fields)
     .map((k) => `${k}?: 1`)
     .join(', ')} }`
+}
+
+function gqlScalarToTypescript(type: string) {
+  switch (type) {
+    case 'String':
+      return 'string'
+    case 'Float':
+    case 'Int':
+      return 'number'
+    case 'Boolean':
+      return 'boolean'
+    default:
+      return ''
+  }
 }
