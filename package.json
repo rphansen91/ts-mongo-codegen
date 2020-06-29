@@ -1,6 +1,6 @@
 {
   "name": "ts-mongo-codegen",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "description": "This project generates types for a seamless integration between GraphQL and MongoDB.",
   "keywords": [
     "graphql",
@@ -150,7 +150,7 @@
     "@graphql-tools/merge": "^6.0.10",
     "@graphql-tools/schema": "^6.0.10",
     "@graphql-tools/utils": "^6.0.10",
-    "graphql": "^14.5.8",
+    "graphql": "^15.2.0",
     "graphql-tag": "^2.10.1",
     "lodash": "^4.17.15",
     "mongodb": "^3.5.9"
