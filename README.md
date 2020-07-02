@@ -14,7 +14,7 @@ This project generates types for a seamless integration between GraphQL and Mong
 ### Usage
 
 ```bash
-yarn add ts-mongo-codegen
+yarn add @elevatejs/ts-mongo-codegen
 ```
 
 **./codegen.json** 
