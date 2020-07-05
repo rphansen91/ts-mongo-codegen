@@ -287,12 +287,12 @@ function generateMutationResolvers(
     .join(', ')
   const updateArgsType = generate(
     `I${typeName}UpdateArgs`,
-    `{ id: ObjectID, ${updateTypes} }`,
+    `{ id: ObjectID, filter: any, ${updateTypes} }`,
     'type'
   )
   const updateManyArgsType = generate(
     `I${pluralize(typeName)}UpdateManyArgs`,
-    `{ ids: ObjectID[], ${updateTypes} }`,
+    `{ ids: ObjectID[], filter: any, ${updateTypes} }`,
     'type'
   )
   const updateGraphqlArgs = [
@@ -308,11 +308,11 @@ function generateMutationResolvers(
     mongoTypes.decType?.name ? `$dec: ${camelTypeName}Dec` : '',
   ].filter((v) => v)
   const update = updateGraphqlArgs.length
-    ? `  async update${typeName}(_: any, { id, ${updateGraphqlArgs.join(', ')} }: ${
+    ? `  async update${typeName}(_: any, { id, filter, ${updateGraphqlArgs.join(', ')} }: ${
         updateArgsType.name
       }, context: ${contextType}) {
       const { value } = await context.${collectionName}.findOneAndUpdate({ 
-        _id: id 
+        _id: id, ...filter
       }, {
         ${updateMongoArgs.join(', ')}
       }, {
@@ -322,41 +322,47 @@ function generateMutationResolvers(
   },`
     : ''
   const updateMany = updateGraphqlArgs.length
-    ? `  async updateMany${pluralize(typeName)}(_: any, { ids, ${updateGraphqlArgs.join(', ')} }: ${
-        updateManyArgsType.name
-      }, context: ${contextType}) {
+    ? `  async updateMany${pluralize(typeName)}(_: any, { 
+      ids, 
+      filter, 
+      ${updateGraphqlArgs.join(', ')} 
+    }: ${updateManyArgsType.name}, context: ${contextType}) {
     await context.${collectionName}.updateMany(
-      { _id: { $in: ids } },
+      { _id: { $in: ids }, ...filter },
       {
         ${updateMongoArgs.join(', ')}
       }
     )
     const ${pluralize(
       collectionName
-    )} = await context.${collectionName}.find({ _id: { $in: ids } }).toArray()
+    )} = await context.${collectionName}.find({ _id: { $in: ids, ...filter } }).toArray()
     const ${collectionName}ById = keyBy(${pluralize(collectionName)}, fromMongoId)
     return ids.map(id => id.toHexString()).map(id => ${collectionName}ById[id])
   },`
     : ''
 
-  const removeByIdArgsType = generate(`I${typeName}RemoveArgs`, '{ id: ObjectID }', 'type')
-  const removeByIdsArgsType = generate(
-    `I${pluralize(typeName)}RemoveManyArgs`,
-    '{ ids: ObjectID[] }',
+  const removeByIdArgsType = generate(
+    `I${typeName}RemoveArgs`,
+    '{ id: ObjectID, filter: any }',
     'type'
   )
-  const remove = `  async remove${typeName}(_: any, { id }: ${removeByIdArgsType.name}, context: ${contextType}) {
-    const { value } = await context.${collectionName}.findOneAndDelete({ _id: id })
+  const removeByIdsArgsType = generate(
+    `I${pluralize(typeName)}RemoveManyArgs`,
+    '{ ids: ObjectID[], filter: any }',
+    'type'
+  )
+  const remove = `  async remove${typeName}(_: any, { id, filter }: ${removeByIdArgsType.name}, context: ${contextType}) {
+    const { value } = await context.${collectionName}.findOneAndDelete({ _id: id, ...filter })
     return value || null
   },`
-  const removeMany = `  async removeMany${pluralize(typeName)}(_: any, { ids }: ${
+  const removeMany = `  async removeMany${pluralize(typeName)}(_: any, { ids, filter }: ${
     removeByIdsArgsType.name
   }, context: ${contextType}) {
     const ${pluralize(
       collectionName
-    )} = await context.${collectionName}.find({ _id: { $in: ids } }).toArray()
+    )} = await context.${collectionName}.find({ _id: { $in: ids }, ...filter }).toArray()
     const ${collectionName}ById = keyBy(${pluralize(collectionName)}, fromMongoId)
-    await context.${collectionName}.deleteMany({ _id: { $in: ids } })
+    await context.${collectionName}.deleteMany({ _id: { $in: ids }, ...filter })
     return ids.map(id => id.toHexString()).map(id => ${collectionName}ById[id])
   },`
   const mutationResolvers = `{

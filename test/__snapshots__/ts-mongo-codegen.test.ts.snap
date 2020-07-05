@@ -20,7 +20,7 @@ export const getBooksCollection = (db: Db) => db.collection<Book>('books')
 
 export const bookResolvers: BookResolvers<IBookContext> = { id: fromMongoId }
 
-export type IBookFilterArgs = { title?: string, author?: string }
+export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; } }
 
 export type IBookFindArgs = { filter: IBookFilterArgs, pagination: Pagination, sort: Sort }
 
@@ -65,13 +65,13 @@ export type IBookDecArgs = {  }
 
 export type IBookIncArgs = {  }
 
-export type IBookUpdateArgs = { id: ObjectID, bookSet: IBookSetArgs }
+export type IBookUpdateArgs = { id: ObjectID, filter: any, bookSet: IBookSetArgs }
 
-export type IBooksUpdateManyArgs = { ids: ObjectID[], bookSet: IBookSetArgs }
+export type IBooksUpdateManyArgs = { ids: ObjectID[], filter: any, bookSet: IBookSetArgs }
 
-export type IBookRemoveArgs = { id: ObjectID }
+export type IBookRemoveArgs = { id: ObjectID, filter: any }
 
-export type IBooksRemoveManyArgs = { ids: ObjectID[] }
+export type IBooksRemoveManyArgs = { ids: ObjectID[], filter: any }
 
 export const bookMutationResolvers = {
   async insertBook(_: any, { book }: IBookInsertArgs, context: IBookContext) {
@@ -87,9 +87,9 @@ export const bookMutationResolvers = {
     })
     return cursor.toArray()
   },
-  async updateBook(_: any, { id, bookSet }: IBookUpdateArgs, context: IBookContext) {
+  async updateBook(_: any, { id, filter, bookSet }: IBookUpdateArgs, context: IBookContext) {
       const { value } = await context.books.findOneAndUpdate({ 
-        _id: id 
+        _id: id, ...filter
       }, {
         $set: bookSet
       }, {
@@ -97,25 +97,29 @@ export const bookMutationResolvers = {
       })
       return value || null
   },
-  async updateManyBooks(_: any, { ids, bookSet }: IBooksUpdateManyArgs, context: IBookContext) {
+  async updateManyBooks(_: any, { 
+      ids, 
+      filter, 
+      bookSet 
+    }: IBooksUpdateManyArgs, context: IBookContext) {
     await context.books.updateMany(
-      { _id: { $in: ids } },
+      { _id: { $in: ids }, ...filter },
       {
         $set: bookSet
       }
     )
-    const books = await context.books.find({ _id: { $in: ids } }).toArray()
+    const books = await context.books.find({ _id: { $in: ids, ...filter } }).toArray()
     const booksById = keyBy(books, fromMongoId)
     return ids.map(id => id.toHexString()).map(id => booksById[id])
   },
-  async removeBook(_: any, { id }: IBookRemoveArgs, context: IBookContext) {
-    const { value } = await context.books.findOneAndDelete({ _id: id })
+  async removeBook(_: any, { id, filter }: IBookRemoveArgs, context: IBookContext) {
+    const { value } = await context.books.findOneAndDelete({ _id: id, ...filter })
     return value || null
   },
-  async removeManyBooks(_: any, { ids }: IBooksRemoveManyArgs, context: IBookContext) {
-    const books = await context.books.find({ _id: { $in: ids } }).toArray()
+  async removeManyBooks(_: any, { ids, filter }: IBooksRemoveManyArgs, context: IBookContext) {
+    const books = await context.books.find({ _id: { $in: ids }, ...filter }).toArray()
     const booksById = keyBy(books, fromMongoId)
-    await context.books.deleteMany({ _id: { $in: ids } })
+    await context.books.deleteMany({ _id: { $in: ids }, ...filter })
     return ids.map(id => id.toHexString()).map(id => booksById[id])
   },
 }
@@ -146,49 +150,30 @@ directive @inc on FIELD_DEFINITION
 
 directive @dec on FIELD_DEFINITION
 
-type Book {
-  id: ObjectId
-  title: String
-  author: String
+input Pagination {
+  perPage: Int
+  page: Int
 }
 
-input BookFilter {
-  title: String
-  author: String
-}
-
-input BookInsert {
-  title: String
-  author: String
-}
-
-type BookPage {
-  total: Int
-  data: [Book]
-}
-
-input BookSet {
-  title: String
-  author: String
-}
-
-input BookUnset {
-  title: String
-  author: String
+input Sort {
+  field: String
+  order: Int
 }
 
 scalar Date
 
-input DateFilter {
-  EQ: Date
-  GT: Date
-  GTE: Date
-  IN: [Date]
-  ALL: [Date]
-  LT: Date
-  LTE: Date
-  NE: Date
-  NIN: [Date]
+scalar ObjectId
+
+input IntFilter {
+  EQ: Int
+  GT: Int
+  GTE: Int
+  IN: [Int]
+  ALL: [Int]
+  LT: Int
+  LTE: Int
+  NE: Int
+  NIN: [Int]
 }
 
 input FloatFilter {
@@ -203,29 +188,29 @@ input FloatFilter {
   NIN: [Float]
 }
 
-input IntFilter {
-  EQ: Int
-  GT: Int
-  GTE: Int
-  IN: [Int]
-  ALL: [Int]
-  LT: Int
-  LTE: Int
-  NE: Int
-  NIN: [Int]
+input StringFilter {
+  EQ: String
+  GT: String
+  GTE: String
+  IN: [String]
+  ALL: [String]
+  LT: String
+  LTE: String
+  NE: String
+  NIN: [String]
 }
 
-type Mutation {
-  root: String
-  insertBook(book: BookInsert!): Book
-  insertManyBooks(books: [BookInsert!]!): [Book]
-  updateBook(id: ObjectId!, bookUnset: BookUnset, bookSet: BookSet): Book
-  updateManyBooks(ids: [ObjectId!]!, bookUnset: BookUnset, bookSet: BookSet): [Book]
-  removeBook(id: ObjectId!): Book
-  removeManyBooks(ids: [ObjectId!]!): [Book]
+input DateFilter {
+  EQ: Date
+  GT: Date
+  GTE: Date
+  IN: [Date]
+  ALL: [Date]
+  LT: Date
+  LTE: Date
+  NE: Date
+  NIN: [Date]
 }
-
-scalar ObjectId
 
 input ObjectIdFilter {
   EQ: ObjectId
@@ -239,9 +224,10 @@ input ObjectIdFilter {
   NIN: [ObjectId]
 }
 
-input Pagination {
-  perPage: Int
-  page: Int
+type Book {
+  id: ObjectId
+  title: String
+  author: String
 }
 
 type Query {
@@ -251,21 +237,39 @@ type Query {
   findBooksByIds(ids: [ObjectId!]!): [Book]
 }
 
-input Sort {
-  field: String
-  order: Int
+type Mutation {
+  root: String
+  insertBook(book: BookInsert!): Book
+  insertManyBooks(books: [BookInsert!]!): [Book]
+  updateBook(id: ObjectId!, bookUnset: BookUnset, bookSet: BookSet): Book
+  updateManyBooks(ids: [ObjectId!]!, bookUnset: BookUnset, bookSet: BookSet): [Book]
+  removeBook(id: ObjectId!): Book
+  removeManyBooks(ids: [ObjectId!]!): [Book]
 }
 
-input StringFilter {
-  EQ: String
-  GT: String
-  GTE: String
-  IN: [String]
-  ALL: [String]
-  LT: String
-  LTE: String
-  NE: String
-  NIN: [String]
+type BookPage {
+  total: Int
+  data: [Book]
+}
+
+input BookFilter {
+  title: StringFilter
+  author: StringFilter
+}
+
+input BookInsert {
+  title: String
+  author: String
+}
+
+input BookUnset {
+  title: String
+  author: String
+}
+
+input BookSet {
+  title: String
+  author: String
 }
 "
 `;
@@ -287,18 +291,30 @@ directive @inc on FIELD_DEFINITION
 
 directive @dec on FIELD_DEFINITION
 
+input Pagination {
+  perPage: Int
+  page: Int
+}
+
+input Sort {
+  field: String
+  order: Int
+}
+
 scalar Date
 
-input DateFilter {
-  EQ: Date
-  GT: Date
-  GTE: Date
-  IN: [Date]
-  ALL: [Date]
-  LT: Date
-  LTE: Date
-  NE: Date
-  NIN: [Date]
+scalar ObjectId
+
+input IntFilter {
+  EQ: Int
+  GT: Int
+  GTE: Int
+  IN: [Int]
+  ALL: [Int]
+  LT: Int
+  LTE: Int
+  NE: Int
+  NIN: [Int]
 }
 
 input FloatFilter {
@@ -313,29 +329,29 @@ input FloatFilter {
   NIN: [Float]
 }
 
-input IntFilter {
-  EQ: Int
-  GT: Int
-  GTE: Int
-  IN: [Int]
-  ALL: [Int]
-  LT: Int
-  LTE: Int
-  NE: Int
-  NIN: [Int]
+input StringFilter {
+  EQ: String
+  GT: String
+  GTE: String
+  IN: [String]
+  ALL: [String]
+  LT: String
+  LTE: String
+  NE: String
+  NIN: [String]
 }
 
-type Mutation {
-  root: String
-  insertUser(user: UserInsert!): User
-  insertManyUsers(users: [UserInsert!]!): [User]
-  updateUser(id: ObjectId!, userUnset: UserUnset, userSet: UserSet): User
-  updateManyUsers(ids: [ObjectId!]!, userUnset: UserUnset, userSet: UserSet): [User]
-  removeUser(id: ObjectId!): User
-  removeManyUsers(ids: [ObjectId!]!): [User]
+input DateFilter {
+  EQ: Date
+  GT: Date
+  GTE: Date
+  IN: [Date]
+  ALL: [Date]
+  LT: Date
+  LTE: Date
+  NE: Date
+  NIN: [Date]
 }
-
-scalar ObjectId
 
 input ObjectIdFilter {
   EQ: ObjectId
@@ -349,9 +365,10 @@ input ObjectIdFilter {
   NIN: [ObjectId]
 }
 
-input Pagination {
-  perPage: Int
-  page: Int
+type User {
+  id: ObjectId
+  email: String
+  username: String
 }
 
 type Query {
@@ -361,37 +378,14 @@ type Query {
   findUsersByIds(ids: [ObjectId!]!): [User]
 }
 
-input Sort {
-  field: String
-  order: Int
-}
-
-input StringFilter {
-  EQ: String
-  GT: String
-  GTE: String
-  IN: [String]
-  ALL: [String]
-  LT: String
-  LTE: String
-  NE: String
-  NIN: [String]
-}
-
-type User {
-  id: ObjectId
-  email: String
-  username: String
-}
-
-input UserFilter {
-  email: String
-  username: String
-}
-
-input UserInsert {
-  email: String
-  username: String
+type Mutation {
+  root: String
+  insertUser(user: UserInsert!): User
+  insertManyUsers(users: [UserInsert!]!): [User]
+  updateUser(id: ObjectId!, userUnset: UserUnset, userSet: UserSet): User
+  updateManyUsers(ids: [ObjectId!]!, userUnset: UserUnset, userSet: UserSet): [User]
+  removeUser(id: ObjectId!): User
+  removeManyUsers(ids: [ObjectId!]!): [User]
 }
 
 type UserPage {
@@ -399,12 +393,22 @@ type UserPage {
   data: [User]
 }
 
-input UserSet {
+input UserFilter {
+  email: StringFilter
+  username: StringFilter
+}
+
+input UserInsert {
   email: String
   username: String
 }
 
 input UserUnset {
+  email: String
+  username: String
+}
+
+input UserSet {
   email: String
   username: String
 }
@@ -431,7 +435,7 @@ export const getUsersCollection = (db: Db) => db.collection<User>('users')
 
 export const userResolvers: UserResolvers<IUserContext> = { id: fromMongoId }
 
-export type IUserFilterArgs = { email?: string, username?: string }
+export type IUserFilterArgs = { email?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, username?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; } }
 
 export type IUserFindArgs = { filter: IUserFilterArgs, pagination: Pagination, sort: Sort }
 
@@ -476,13 +480,13 @@ export type IUserDecArgs = {  }
 
 export type IUserIncArgs = {  }
 
-export type IUserUpdateArgs = { id: ObjectID, userSet: IUserSetArgs }
+export type IUserUpdateArgs = { id: ObjectID, filter: any, userSet: IUserSetArgs }
 
-export type IUsersUpdateManyArgs = { ids: ObjectID[], userSet: IUserSetArgs }
+export type IUsersUpdateManyArgs = { ids: ObjectID[], filter: any, userSet: IUserSetArgs }
 
-export type IUserRemoveArgs = { id: ObjectID }
+export type IUserRemoveArgs = { id: ObjectID, filter: any }
 
-export type IUsersRemoveManyArgs = { ids: ObjectID[] }
+export type IUsersRemoveManyArgs = { ids: ObjectID[], filter: any }
 
 export const userMutationResolvers = {
   async insertUser(_: any, { user }: IUserInsertArgs, context: IUserContext) {
@@ -498,9 +502,9 @@ export const userMutationResolvers = {
     })
     return cursor.toArray()
   },
-  async updateUser(_: any, { id, userSet }: IUserUpdateArgs, context: IUserContext) {
+  async updateUser(_: any, { id, filter, userSet }: IUserUpdateArgs, context: IUserContext) {
       const { value } = await context.users.findOneAndUpdate({ 
-        _id: id 
+        _id: id, ...filter
       }, {
         $set: userSet
       }, {
@@ -508,25 +512,29 @@ export const userMutationResolvers = {
       })
       return value || null
   },
-  async updateManyUsers(_: any, { ids, userSet }: IUsersUpdateManyArgs, context: IUserContext) {
+  async updateManyUsers(_: any, { 
+      ids, 
+      filter, 
+      userSet 
+    }: IUsersUpdateManyArgs, context: IUserContext) {
     await context.users.updateMany(
-      { _id: { $in: ids } },
+      { _id: { $in: ids }, ...filter },
       {
         $set: userSet
       }
     )
-    const users = await context.users.find({ _id: { $in: ids } }).toArray()
+    const users = await context.users.find({ _id: { $in: ids, ...filter } }).toArray()
     const usersById = keyBy(users, fromMongoId)
     return ids.map(id => id.toHexString()).map(id => usersById[id])
   },
-  async removeUser(_: any, { id }: IUserRemoveArgs, context: IUserContext) {
-    const { value } = await context.users.findOneAndDelete({ _id: id })
+  async removeUser(_: any, { id, filter }: IUserRemoveArgs, context: IUserContext) {
+    const { value } = await context.users.findOneAndDelete({ _id: id, ...filter })
     return value || null
   },
-  async removeManyUsers(_: any, { ids }: IUsersRemoveManyArgs, context: IUserContext) {
-    const users = await context.users.find({ _id: { $in: ids } }).toArray()
+  async removeManyUsers(_: any, { ids, filter }: IUsersRemoveManyArgs, context: IUserContext) {
+    const users = await context.users.find({ _id: { $in: ids }, ...filter }).toArray()
     const usersById = keyBy(users, fromMongoId)
-    await context.users.deleteMany({ _id: { $in: ids } })
+    await context.users.deleteMany({ _id: { $in: ids }, ...filter })
     return ids.map(id => id.toHexString()).map(id => usersById[id])
   },
 }
