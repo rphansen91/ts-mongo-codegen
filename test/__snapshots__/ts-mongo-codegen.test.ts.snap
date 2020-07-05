@@ -2,7 +2,7 @@
 
 exports[`TS Mongo Codegen Should build book collection types: collectionBookTypes 1`] = `
 "import { Db, Collection, ObjectID } from 'mongodb'
-import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from 'ts-mongo-codegen'
+import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from '@elevatejs/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
@@ -417,7 +417,7 @@ input UserSet {
 
 exports[`TS Mongo Codegen Should build user collection types: collectionTypes 1`] = `
 "import { Db, Collection, ObjectID } from 'mongodb'
-import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from 'ts-mongo-codegen'
+import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from '@elevatejs/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 

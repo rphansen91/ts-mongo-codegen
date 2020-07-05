@@ -41,7 +41,7 @@ export const plugin: PluginFunction<Partial<Config>> = (schema, documents, confi
     .filter(isGeneratedCollection)
 
   const content = `import { Db, Collection, ObjectID } from 'mongodb'
-import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from 'ts-mongo-codegen'
+import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from '@elevatejs/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
