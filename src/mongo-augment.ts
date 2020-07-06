@@ -88,6 +88,7 @@ const makeAppendCrudQueryMapper = ({
   const config = type.toConfig()
   const pagination = schema.getType('Pagination') as GraphQLInputObjectType
   const sort = schema.getType('Sort') as GraphQLInputObjectType
+  const existingQueryFields = schema.getQueryType()?.getFields()
   const appendFields = Object.keys(collectionMap)
     .map((typeName) => {
       const collection = collectionMap[typeName]
@@ -123,11 +124,17 @@ const makeAppendCrudQueryMapper = ({
           },
         },
       }
-      return {
-        [`find${pluralize(typeName)}`]: find,
-        [`find${typeName}ById`]: findById,
-        [`find${pluralize(typeName)}ByIds`]: findByIds,
+      const queryFields: any = {}
+      if (!existingQueryFields?.[`find${pluralize(typeName)}`]) {
+        queryFields[`find${pluralize(typeName)}`] = find
       }
+      if (!existingQueryFields?.[`find${typeName}ById`]) {
+        queryFields[`find${typeName}ById`] = findById
+      }
+      if (!existingQueryFields?.[`find${pluralize(typeName)}ByIds`]) {
+        queryFields[`find${pluralize(typeName)}ByIds`] = findByIds
+      }
+      return queryFields
     })
     .reduce((acc, fields) => ({ ...acc, ...fields }), {})
   return new GraphQLObjectType({
@@ -155,6 +162,7 @@ const makeAppendCrudMutationMapper = ({
   decTypeMap: { [x: string]: GraphQLInputObjectType | null }
 }): ObjectTypeMapper => (type: GraphQLObjectType, schema: GraphQLSchema) => {
   const config = type.toConfig()
+  const existingMutationFields = schema.getMutationType()?.getFields()
   const appendFields = Object.keys(collectionMap)
     .map((typeName) => {
       const collection = collectionMap[typeName]
@@ -188,40 +196,48 @@ const makeAppendCrudMutationMapper = ({
         if (setType) updateArgs[`${camelCase(typeName)}Set`] = { type: setType }
         if (incType) updateArgs[`${camelCase(typeName)}Inc`] = { type: incType }
         if (decType) updateArgs[`${camelCase(typeName)}Dec`] = { type: decType }
-        mutations[`update${typeName}`] = {
+        if (!existingMutationFields?.[`update${typeName}`]) {
+          mutations[`update${typeName}`] = {
+            type: collection,
+            args: {
+              id: {
+                type: new GraphQLNonNull(graphqlTypeObjectId),
+              },
+              ...updateArgs,
+            },
+          }
+        }
+        if (!existingMutationFields?.[`updateMany${pluralize(typeName)}`]) {
+          mutations[`updateMany${pluralize(typeName)}`] = {
+            type: new GraphQLList(collection),
+            args: {
+              ids: {
+                type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(graphqlTypeObjectId))),
+              },
+              ...updateArgs,
+            },
+          }
+        }
+      }
+      if (!existingMutationFields?.[`remove${typeName}`]) {
+        mutations[`remove${typeName}`] = {
           type: collection,
           args: {
             id: {
               type: new GraphQLNonNull(graphqlTypeObjectId),
             },
-            ...updateArgs,
           },
         }
-        mutations[`updateMany${pluralize(typeName)}`] = {
+      }
+      if (!existingMutationFields?.[`removeMany${pluralize(typeName)}`]) {
+        mutations[`removeMany${pluralize(typeName)}`] = {
           type: new GraphQLList(collection),
           args: {
             ids: {
               type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(graphqlTypeObjectId))),
             },
-            ...updateArgs,
           },
         }
-      }
-      mutations[`remove${typeName}`] = {
-        type: collection,
-        args: {
-          id: {
-            type: new GraphQLNonNull(graphqlTypeObjectId),
-          },
-        },
-      }
-      mutations[`removeMany${pluralize(typeName)}`] = {
-        type: new GraphQLList(collection),
-        args: {
-          ids: {
-            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(graphqlTypeObjectId))),
-          },
-        },
       }
       return mutations
     })
