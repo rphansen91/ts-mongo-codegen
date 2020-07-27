@@ -150,7 +150,7 @@
     "@graphql-tools/merge": "^6.0.10",
     "@graphql-tools/schema": "^6.0.10",
     "@graphql-tools/utils": "^6.0.10",
-    "graphql": "^15.2.0",
+    "graphql": "^15.3.0",
     "graphql-tag": "^2.10.1",
     "lodash": "^4.17.15",
     "mongodb": "^3.5.9"
