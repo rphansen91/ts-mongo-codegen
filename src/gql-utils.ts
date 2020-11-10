@@ -139,7 +139,10 @@ export function buildPageMap({ collectionMap }: { collectionMap: CollectionMap }
   return tuple(schemas, types)
 }
 
-const getFieldValueDefault = get('type.name.value') as (v: FieldDefinitionNode) => string
+const getFieldValueDefault = (field: FieldDefinitionNode): string => {
+  if (field?.type?.kind === 'ListType') return `[${getFieldValueDefault(field.type as any)}]`
+  return (field?.type as any)?.name?.value
+}
 export function buildFieldMap(
   type: string,
   { collectionMap }: { collectionMap: CollectionMap },
@@ -164,7 +167,8 @@ export function buildFieldMap(
   return tuple(schemas, types)
 }
 
-function geFieldFilterValue(field: FieldDefinitionNode) {
+function geFieldFilterValue(field: FieldDefinitionNode): string {
+  if (field?.type?.kind === 'ListType') return geFieldFilterValue(field.type as any)
   const value = getFieldValueDefault(field)
   switch (value) {
     case 'String':
@@ -204,8 +208,13 @@ function gqlScalarToTypescript(type: string) {
   switch (type) {
     case 'String':
       return 'string'
+    case '[String]':
+      return 'string[]'
     case 'StringFilter':
       return '{ EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }'
+    case '[Float]':
+    case '[Int]':
+      return 'number[]'
     case 'Float':
     case 'Int':
       return 'number'
@@ -216,8 +225,12 @@ function gqlScalarToTypescript(type: string) {
       return '{ EQ?: Date; GT?: Date; GTE?: Date; IN?: Date[]; ALL?: Date[]; LT?: Date; LTE?: Date; NE?: Date; NIN?: Date[]; }'
     case 'Boolean':
       return 'boolean'
+    case '[Boolean]':
+      return 'boolean[]'
     case 'ObjectId':
       return 'ObjectID'
+    case '[ObjectId]':
+      return 'ObjectID[]'
     case 'ObjectIdFilter':
       return '{ EQ: ObjectID; GT: ObjectID; GTE: ObjectID; IN: ObjectID[]; ALL: ObjectID[]; LT: ObjectID; LTE: ObjectID; NE: ObjectID; NIN: ObjectID[]; }'
     default:

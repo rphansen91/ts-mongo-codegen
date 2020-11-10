@@ -8,6 +8,7 @@ makeAugmentedSchema(
       id: ObjectId
       title: String @insert @set @unset @filter
       author: String @insert @set @unset @filter
+      tags: [String] @insert @set @filter
     }
   `)
 )
