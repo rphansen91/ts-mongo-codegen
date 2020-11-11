@@ -74,16 +74,17 @@ type GenerateCollectionArgs = {
 }
 type GeneratedCollection = ReturnType<typeof buildMongoCollection>
 function buildMongoCollection(
-  {
+  collectionArgs: GenerateCollectionArgs,
+  { includeCrud } = { includeCrud: false }
+) {
+  const {
     typeName,
     collectionName,
     collectionString,
     mongoTypes,
     capitalName,
     camelTypeName,
-  }: GenerateCollectionArgs,
-  { includeCrud } = { includeCrud: false }
-) {
+  } = collectionArgs
   const collectionType = generate(`I${capitalName}Collection`, `Collection<${typeName}>`, 'type')
   const contextType = generate(
     `I${typeName}Context`,
@@ -104,33 +105,19 @@ function buildMongoCollection(
       '{ id: fromMongoId }',
       'const'
     )
+    const queryResolvers = generateQueryResolvers(
+      collectionArgs,
+      contextType.name
+    )
+    const mutationResolvers = generateMutationResolvers(
+      collectionArgs,
+      contextType.name
+    )
+    const crudResolvers = generateCrudResolvers(collectionArgs)
     exports.push(resolversExport)
-    exports.push(
-      ...generateQueryResolvers(
-        {
-          typeName,
-          collectionName,
-          collectionString,
-          mongoTypes,
-          capitalName,
-          camelTypeName,
-        },
-        contextType.name
-      )
-    )
-    exports.push(
-      ...generateMutationResolvers(
-        {
-          typeName,
-          collectionName,
-          collectionString,
-          mongoTypes,
-          capitalName,
-          camelTypeName,
-        },
-        contextType.name
-      )
-    )
+    exports.push(...queryResolvers)
+    exports.push(...mutationResolvers)
+    exports.push(...crudResolvers)
   }
   return {
     typeName,
@@ -387,4 +374,15 @@ ${[insert, insertMany, update, updateMany, remove, removeMany].filter((v) => v).
     removeByIdsArgsType,
     mutationResolversExport,
   ]
+}
+
+function generateCrudResolvers(
+  { typeName, camelTypeName }: GenerateCollectionArgs,
+) {
+  const crudResolversExport = generate(
+    `${camelTypeName}CrudResolvers`,
+    `{ Query: ${camelTypeName}QueryResolvers, Mutation: ${camelTypeName}MutationResolvers, ${typeName}: ${camelTypeName}Resolvers }`,
+    'const'
+  )
+  return [crudResolversExport]
 }

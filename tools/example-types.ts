@@ -453,6 +453,8 @@ export const authorMutationResolvers = {
   },
 }
 
+export const authorCrudResolvers = { Query: authorQueryResolvers, Mutation: authorMutationResolvers, Author: authorResolvers }
+
 export type IBooksCollection = Collection<Book>
 
 export type IBookContext = { books: IBooksCollection }
@@ -564,6 +566,8 @@ export const bookMutationResolvers = {
     return ids.map(id => id.toHexString()).map(id => booksById[id])
   },
 }
+
+export const bookCrudResolvers = { Query: bookQueryResolvers, Mutation: bookMutationResolvers, Book: bookResolvers }
 
 export function mongoCollectionFactory (db: Db) {
   const authors = getAuthorsCollection(db)
