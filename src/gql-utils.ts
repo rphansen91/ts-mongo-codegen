@@ -13,10 +13,8 @@ import {
   printSchema,
 } from 'graphql'
 import capitalize from 'lodash/capitalize'
-import get from 'lodash/fp/get'
 import last from 'lodash/last'
 import mapValues from 'lodash/mapValues'
-import { mongoTypeDefs } from './mongo-types'
 
 export type AugmentConfig = {
   name?: string
@@ -196,7 +194,7 @@ function gqlScalarToTypescript(type: string): string {
   const listType = type.match(/\[([a-zA-Z!]+)\]/)
   const filterType = type.match(/([a-zA-Z]+)Filter!?$/)
   if (listType) return `${gqlScalarToTypescript(listType[1])}[]`
-  if (filterType) return gqlScalarToFilter(filterType[1])
+  if (filterType) return gqlScalarToFilter(gqlScalarToTypescript(filterType[1]))
   switch (type.replace(/!$/, '')) {
     case 'String':
       return 'string'

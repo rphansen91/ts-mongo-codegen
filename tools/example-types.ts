@@ -371,7 +371,7 @@ export const getAuthorsCollection = (db: Db) => db.collection<Author>('authors')
 
 export const authorResolvers: AuthorResolvers<IAuthorContext> = { id: fromMongoId }
 
-export type IAuthorFilterArgs = { name?: { EQ?: String; GT?: String; GTE?: String; IN?: String[]; ALL?: String[]; LT?: String; LTE?: String; NE?: String; NIN?: String[]; } }
+export type IAuthorFilterArgs = { name?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; } }
 
 export type IAuthorFindArgs = { filter: IAuthorFilterArgs, pagination: Pagination, sort: Sort }
 
@@ -485,7 +485,7 @@ export const getBooksCollection = (db: Db) => db.collection<Book>('books')
 
 export const bookResolvers: BookResolvers<IBookContext> = { id: fromMongoId }
 
-export type IBookFilterArgs = { title?: { EQ?: String; GT?: String; GTE?: String; IN?: String[]; ALL?: String[]; LT?: String; LTE?: String; NE?: String; NIN?: String[]; }, author?: { EQ?: String; GT?: String; GTE?: String; IN?: String[]; ALL?: String[]; LT?: String; LTE?: String; NE?: String; NIN?: String[]; }, tags?: { EQ?: String; GT?: String; GTE?: String; IN?: String[]; ALL?: String[]; LT?: String; LTE?: String; NE?: String; NIN?: String[]; }, category?: { EQ?: Category; GT?: Category; GTE?: Category; IN?: Category[]; ALL?: Category[]; LT?: Category; LTE?: Category; NE?: Category; NIN?: Category[]; } }
+export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, tags?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, category?: { EQ?: Category; GT?: Category; GTE?: Category; IN?: Category[]; ALL?: Category[]; LT?: Category; LTE?: Category; NE?: Category; NIN?: Category[]; } }
 
 export type IBookFindArgs = { filter: IBookFilterArgs, pagination: Pagination, sort: Sort }
 
