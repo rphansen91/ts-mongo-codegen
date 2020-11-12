@@ -92,6 +92,23 @@ export type ObjectIdFilter = {
   NIN?: Maybe<Array<Maybe<Scalars['ObjectId']>>>;
 };
 
+export enum Category {
+  Drama = 'drama',
+  Comedy = 'comedy'
+}
+
+export type CategoryFilter = {
+  EQ?: Maybe<Category>;
+  GT?: Maybe<Category>;
+  GTE?: Maybe<Category>;
+  IN?: Maybe<Array<Maybe<Category>>>;
+  ALL?: Maybe<Array<Maybe<Category>>>;
+  LT?: Maybe<Category>;
+  LTE?: Maybe<Category>;
+  NE?: Maybe<Category>;
+  NIN?: Maybe<Array<Maybe<Category>>>;
+};
+
 export type Author = {
   __typename?: 'Author';
   id?: Maybe<Scalars['ObjectId']>;
@@ -104,6 +121,7 @@ export type Book = {
   title?: Maybe<Scalars['String']>;
   author?: Maybe<Scalars['String']>;
   tags?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<Category>;
 };
 
 export type Query = {
@@ -207,6 +225,8 @@ export type ResolversTypes = {
   StringFilter: StringFilter;
   DateFilter: DateFilter;
   ObjectIdFilter: ObjectIdFilter;
+  Category: Category;
+  CategoryFilter: CategoryFilter;
   Author: ResolverTypeWrapper<Author>;
   Book: ResolverTypeWrapper<Book>;
   Query: ResolverTypeWrapper<{}>;
@@ -228,6 +248,7 @@ export type ResolversParentTypes = {
   StringFilter: StringFilter;
   DateFilter: DateFilter;
   ObjectIdFilter: ObjectIdFilter;
+  CategoryFilter: CategoryFilter;
   Author: Author;
   Book: Book;
   Query: {};
@@ -287,6 +308,7 @@ export type BookResolvers<ContextType = any, ParentType extends ResolversParentT
   title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  category?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 };
 
@@ -349,7 +371,7 @@ export const getAuthorsCollection = (db: Db) => db.collection<Author>('authors')
 
 export const authorResolvers: AuthorResolvers<IAuthorContext> = { id: fromMongoId }
 
-export type IAuthorFilterArgs = { name?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; } }
+export type IAuthorFilterArgs = { name?: { EQ?: String; GT?: String; GTE?: String; IN?: String[]; ALL?: String[]; LT?: String; LTE?: String; NE?: String; NIN?: String[]; } }
 
 export type IAuthorFindArgs = { filter: IAuthorFilterArgs, pagination: Pagination, sort: Sort }
 
@@ -463,7 +485,7 @@ export const getBooksCollection = (db: Db) => db.collection<Book>('books')
 
 export const bookResolvers: BookResolvers<IBookContext> = { id: fromMongoId }
 
-export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, tags?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; } }
+export type IBookFilterArgs = { title?: { EQ?: String; GT?: String; GTE?: String; IN?: String[]; ALL?: String[]; LT?: String; LTE?: String; NE?: String; NIN?: String[]; }, author?: { EQ?: String; GT?: String; GTE?: String; IN?: String[]; ALL?: String[]; LT?: String; LTE?: String; NE?: String; NIN?: String[]; }, tags?: { EQ?: String; GT?: String; GTE?: String; IN?: String[]; ALL?: String[]; LT?: String; LTE?: String; NE?: String; NIN?: String[]; }, category?: { EQ?: Category; GT?: Category; GTE?: Category; IN?: Category[]; ALL?: Category[]; LT?: Category; LTE?: Category; NE?: Category; NIN?: Category[]; } }
 
 export type IBookFindArgs = { filter: IBookFilterArgs, pagination: Pagination, sort: Sort }
 
@@ -494,15 +516,15 @@ export const bookQueryResolvers = {
   },
 }
 
-export type IBookInsert = { title?: string, author?: string, tags?: string[] }
+export type IBookInsert = { title?: string, author?: string, tags?: string[], category?: Category }
 
 export type IBookInsertArgs = { book: IBookInsert }
 
 export type IBooksInsertManyArgs = { books: IBookInsert[] }
 
-export type IBookSetArgs = { title?: string, author?: string, tags?: string[] }
+export type IBookSetArgs = { title?: string, author?: string, tags?: string[], category?: Category }
 
-export type IBookUnsetArgs = { title?: 1, author?: 1, tags?: 1 }
+export type IBookUnsetArgs = { title?: 1, author?: 1, tags?: 1, category?: 1 }
 
 export type IBookDecArgs = {  }
 

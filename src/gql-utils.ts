@@ -10,6 +10,7 @@ import {
   GraphQLSchema,
   StringValueNode,
   FieldDefinitionNode,
+  printSchema,
 } from 'graphql'
 import capitalize from 'lodash/capitalize'
 import get from 'lodash/fp/get'
@@ -68,14 +69,14 @@ export function buildMongoTypeMap(schema: GraphQLSchema, config?: AugmentConfig)
   const [pageSchemaMap, pageTypeMap] = buildPageMap({ collectionMap })
   const [filterSchemaMap, filterTypeMap] = buildFieldMap(
     'filter',
-    { collectionMap },
+    { collectionMap, schema },
     geFieldFilterValue
   )
-  const [insertSchemaMap, insertTypeMap] = buildFieldMap('insert', { collectionMap })
-  const [unsetSchemaMap, unsetTypeMap] = buildFieldMap('unset', { collectionMap })
-  const [setSchemaMap, setTypeMap] = buildFieldMap('set', { collectionMap })
-  const [incSchemaMap, incTypeMap] = buildFieldMap('inc', { collectionMap })
-  const [decSchemaMap, decTypeMap] = buildFieldMap('dec', { collectionMap })
+  const [insertSchemaMap, insertTypeMap] = buildFieldMap('insert', { collectionMap, schema })
+  const [unsetSchemaMap, unsetTypeMap] = buildFieldMap('unset', { collectionMap, schema })
+  const [setSchemaMap, setTypeMap] = buildFieldMap('set', { collectionMap, schema })
+  const [incSchemaMap, incTypeMap] = buildFieldMap('inc', { collectionMap, schema })
+  const [decSchemaMap, decTypeMap] = buildFieldMap('dec', { collectionMap, schema })
   return {
     collectionMap,
     pageSchemaMap,
@@ -145,7 +146,7 @@ const getFieldValueDefault = (field: FieldDefinitionNode): string => {
 }
 export function buildFieldMap(
   type: string,
-  { collectionMap }: { collectionMap: CollectionMap },
+  { collectionMap, schema }: { collectionMap: CollectionMap; schema: GraphQLSchema },
   getFieldValue = getFieldValueDefault
 ) {
   const schemas = mapValues(collectionMap, (collection, name) => {
@@ -155,7 +156,7 @@ export function buildFieldMap(
     const types = fields?.map((field) => `${field.name.value}: ${getFieldValue(field)}`).join('\n')
     if (!types?.length) return null
     return buildSchema(`
-    ${mongoTypeDefs.loc?.source?.body}
+    ${printSchema(schema)}
     input ${name}${capitalize(type)} {
       ${types}
     }`)
@@ -170,20 +171,7 @@ export function buildFieldMap(
 function geFieldFilterValue(field: FieldDefinitionNode): string {
   if (field?.type?.kind === 'ListType') return geFieldFilterValue(field.type as any)
   const value = getFieldValueDefault(field)
-  switch (value) {
-    case 'String':
-      return 'StringFilter'
-    case 'Int':
-      return 'IntFilter'
-    case 'Float':
-      return 'FloatFilter'
-    case 'Date':
-      return 'DateFilter'
-    case 'ObjectId':
-      return 'ObjectIdFilter'
-    default:
-      return value
-  }
+  return `${value}Filter`
 }
 
 export function tuple<A, B>(a: A, b: B) {
@@ -204,36 +192,24 @@ export function gqlTypeToTypescriptUnset(type: GraphQLInputObjectType | null) {
     .join(', ')} }`
 }
 
-function gqlScalarToTypescript(type: string) {
-  switch (type) {
+function gqlScalarToTypescript(type: string): string {
+  const listType = type.match(/\[([a-zA-Z!]+)\]/)
+  const filterType = type.match(/([a-zA-Z]+)Filter!?$/)
+  if (listType) return `${gqlScalarToTypescript(listType[1])}[]`
+  if (filterType) return gqlScalarToFilter(filterType[1])
+  switch (type.replace(/!$/, '')) {
     case 'String':
       return 'string'
-    case '[String]':
-      return 'string[]'
-    case 'StringFilter':
-      return '{ EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }'
-    case '[Float]':
-    case '[Int]':
-      return 'number[]'
     case 'Float':
     case 'Int':
       return 'number'
-    case 'FloatFilter':
-    case 'IntFilter':
-      return '{ EQ?: number; GT?: number; GTE?: number; IN?: number[]; ALL?: number[]; LT?: number; LTE?: number; NE?: number; NIN?: number[]; }'
-    case 'DateFilter':
-      return '{ EQ?: Date; GT?: Date; GTE?: Date; IN?: Date[]; ALL?: Date[]; LT?: Date; LTE?: Date; NE?: Date; NIN?: Date[]; }'
     case 'Boolean':
       return 'boolean'
-    case '[Boolean]':
-      return 'boolean[]'
-    case 'ObjectId':
-      return 'ObjectID'
-    case '[ObjectId]':
-      return 'ObjectID[]'
-    case 'ObjectIdFilter':
-      return '{ EQ: ObjectID; GT: ObjectID; GTE: ObjectID; IN: ObjectID[]; ALL: ObjectID[]; LT: ObjectID; LTE: ObjectID; NE: ObjectID; NIN: ObjectID[]; }'
     default:
-      return type
+      return type.replace(/!$/, '')
   }
+}
+
+function gqlScalarToFilter(type: string) {
+  return `{ EQ?: ${type}; GT?: ${type}; GTE?: ${type}; IN?: ${type}[]; ALL?: ${type}[]; LT?: ${type}; LTE?: ${type}; NE?: ${type}; NIN?: ${type}[]; }`
 }

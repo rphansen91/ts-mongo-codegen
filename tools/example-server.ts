@@ -11,6 +11,23 @@ const { authorResolvers, bookResolvers, authorQueryResolvers, bookQueryResolvers
 const gql = require('graphql-tag')
 
 const bookType = gql`
+  enum Category {
+    drama
+    comedy
+  }
+
+  input CategoryFilter {
+    EQ: Category
+    GT: Category
+    GTE: Category
+    IN: [Category]
+    ALL: [Category]
+    LT: Category
+    LTE: Category
+    NE: Category
+    NIN: [Category]
+  }
+
   type Author @collection(name: "authors", crud: true) {
     id: ObjectId
     name: String @insert @set @unset @filter
@@ -21,6 +38,7 @@ const bookType = gql`
     title: String @insert @set @unset @filter
     author: String @insert @set @unset @filter
     tags: [String] @insert @set @unset @filter
+    category: Category @insert @set @unset @filter
   }
 
   type Query {

@@ -105,14 +105,8 @@ function buildMongoCollection(
       '{ id: fromMongoId }',
       'const'
     )
-    const queryResolvers = generateQueryResolvers(
-      collectionArgs,
-      contextType.name
-    )
-    const mutationResolvers = generateMutationResolvers(
-      collectionArgs,
-      contextType.name
-    )
+    const queryResolvers = generateQueryResolvers(collectionArgs, contextType.name)
+    const mutationResolvers = generateMutationResolvers(collectionArgs, contextType.name)
     const crudResolvers = generateCrudResolvers(collectionArgs)
     exports.push(resolversExport)
     exports.push(...queryResolvers)
@@ -376,9 +370,7 @@ ${[insert, insertMany, update, updateMany, remove, removeMany].filter((v) => v).
   ]
 }
 
-function generateCrudResolvers(
-  { typeName, camelTypeName }: GenerateCollectionArgs,
-) {
+function generateCrudResolvers({ typeName, camelTypeName }: GenerateCollectionArgs) {
   const crudResolversExport = generate(
     `${camelTypeName}CrudResolvers`,
     `{ Query: ${camelTypeName}QueryResolvers, Mutation: ${camelTypeName}MutationResolvers, ${typeName}: ${camelTypeName}Resolvers }`,
