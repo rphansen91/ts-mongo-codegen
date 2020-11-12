@@ -23,6 +23,18 @@ export const mongoTypeDefs = gql`
   scalar Date
   scalar ObjectId
 
+  input BooleanFilter {
+    EQ: Boolean
+    GT: Boolean
+    GTE: Boolean
+    IN: [Boolean]
+    ALL: [Boolean]
+    LT: Boolean
+    LTE: Boolean
+    NE: Boolean
+    NIN: [Boolean]
+  }
+
   input IntFilter {
     EQ: Int
     GT: Int
