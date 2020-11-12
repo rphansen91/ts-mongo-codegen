@@ -12,11 +12,28 @@ import { makeAugmentedSchema } from '../src/mongo-augment'
 
 const bookSchema = buildSchema(`
 ${addToSchema.loc?.source?.body}
+enum Category {
+  drama
+  comedy
+}
+
+input CategoryFilter {
+  EQ: Category
+  GT: Category
+  GTE: Category
+  IN: [Category]
+  ALL: [Category]
+  LT: Category
+  LTE: Category
+  NE: Category
+  NIN: [Category]
+}
 
 type Book @collection(name: "books", crud: true) {
   id: ObjectId
   title: String @insert @set @unset @filter
   author: String @insert @set @unset @filter
+  category: Category @insert @set @unset @filter
 }
 
 type Query {

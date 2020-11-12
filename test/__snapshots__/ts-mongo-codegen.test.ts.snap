@@ -20,7 +20,7 @@ export const getBooksCollection = (db: Db) => db.collection<Book>('books')
 
 export const bookResolvers: BookResolvers<IBookContext> = { id: fromMongoId }
 
-export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; } }
+export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, category?: { EQ?: Category; GT?: Category; GTE?: Category; IN?: Category[]; ALL?: Category[]; LT?: Category; LTE?: Category; NE?: Category; NIN?: Category[]; } }
 
 export type IBookFindArgs = { filter: IBookFilterArgs, pagination: Pagination, sort: Sort }
 
@@ -51,15 +51,15 @@ export const bookQueryResolvers = {
   },
 }
 
-export type IBookInsert = { title?: string, author?: string }
+export type IBookInsert = { title?: string, author?: string, category?: Category }
 
 export type IBookInsertArgs = { book: IBookInsert }
 
 export type IBooksInsertManyArgs = { books: IBookInsert[] }
 
-export type IBookSetArgs = { title?: string, author?: string }
+export type IBookSetArgs = { title?: string, author?: string, category?: Category }
 
-export type IBookUnsetArgs = { title?: 1, author?: 1 }
+export type IBookUnsetArgs = { title?: 1, author?: 1, category?: 1 }
 
 export type IBookDecArgs = {  }
 
@@ -123,6 +123,8 @@ export const bookMutationResolvers = {
     return ids.map(id => id.toHexString()).map(id => booksById[id])
   },
 }
+
+export const bookCrudResolvers = { Query: bookQueryResolvers, Mutation: bookMutationResolvers, Book: bookResolvers }
 
 export function mongoCollectionFactory (db: Db) {
   const books = getBooksCollection(db)
@@ -224,10 +226,28 @@ input ObjectIdFilter {
   NIN: [ObjectId]
 }
 
+enum Category {
+  drama
+  comedy
+}
+
+input CategoryFilter {
+  EQ: Category
+  GT: Category
+  GTE: Category
+  IN: [Category]
+  ALL: [Category]
+  LT: Category
+  LTE: Category
+  NE: Category
+  NIN: [Category]
+}
+
 type Book {
   id: ObjectId
   title: String
   author: String
+  category: Category
 }
 
 type Query {
@@ -255,21 +275,25 @@ type BookPage {
 input BookFilter {
   title: StringFilter
   author: StringFilter
+  category: CategoryFilter
 }
 
 input BookInsert {
   title: String
   author: String
+  category: Category
 }
 
 input BookUnset {
   title: String
   author: String
+  category: Category
 }
 
 input BookSet {
   title: String
   author: String
+  category: Category
 }
 "
 `;
@@ -538,6 +562,8 @@ export const userMutationResolvers = {
     return ids.map(id => id.toHexString()).map(id => usersById[id])
   },
 }
+
+export const userCrudResolvers = { Query: userQueryResolvers, Mutation: userMutationResolvers, User: userResolvers }
 
 export function mongoCollectionFactory (db: Db) {
   const users = getUsersCollection(db)
