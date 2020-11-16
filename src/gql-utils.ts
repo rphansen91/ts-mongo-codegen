@@ -203,6 +203,8 @@ function gqlScalarToTypescript(type: string): string {
       return 'number'
     case 'Boolean':
       return 'boolean'
+    case 'ObjectId':
+      return 'ObjectID'
     default:
       return type.replace(/!$/, '')
   }
