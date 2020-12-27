@@ -70,6 +70,11 @@ export function buildMongoTypeMap(schema: GraphQLSchema, config?: AugmentConfig)
     { collectionMap, schema },
     geFieldFilterValue
   )
+  const [textsearchSchemaMap, textsearchTypeMap] = buildFieldMap(
+    'textsearch',
+    { collectionMap, schema },
+    geFieldFilterValue
+  )
   const [insertSchemaMap, insertTypeMap] = buildFieldMap('insert', { collectionMap, schema })
   const [unsetSchemaMap, unsetTypeMap] = buildFieldMap('unset', { collectionMap, schema })
   const [setSchemaMap, setTypeMap] = buildFieldMap('set', { collectionMap, schema })
@@ -79,6 +84,7 @@ export function buildMongoTypeMap(schema: GraphQLSchema, config?: AugmentConfig)
     collectionMap,
     pageSchemaMap,
     filterSchemaMap,
+    textsearchSchemaMap,
     insertSchemaMap,
     unsetSchemaMap,
     setSchemaMap,
@@ -86,6 +92,7 @@ export function buildMongoTypeMap(schema: GraphQLSchema, config?: AugmentConfig)
     decSchemaMap,
     pageTypeMap,
     filterTypeMap,
+    textsearchTypeMap,
     insertTypeMap,
     unsetTypeMap,
     setTypeMap,
@@ -100,6 +107,7 @@ export function getCollectionMongoTypes(mongoTypeMap: MongoTypeMap, type: string
     collection: mongoTypeMap.collectionMap[type],
     pageSchema: mongoTypeMap.pageSchemaMap[type],
     filterSchema: mongoTypeMap.filterSchemaMap[type],
+    textsearchSchema: mongoTypeMap.textsearchSchemaMap[type],
     insertSchema: mongoTypeMap.insertSchemaMap[type],
     unsetSchema: mongoTypeMap.unsetSchemaMap[type],
     setSchema: mongoTypeMap.setSchemaMap[type],
@@ -107,6 +115,7 @@ export function getCollectionMongoTypes(mongoTypeMap: MongoTypeMap, type: string
     decSchema: mongoTypeMap.decSchemaMap[type],
     pageType: mongoTypeMap.pageTypeMap[type],
     filterType: mongoTypeMap.filterTypeMap[type],
+    textsearchType: mongoTypeMap.textsearchTypeMap[type],
     insertType: mongoTypeMap.insertTypeMap[type],
     unsetType: mongoTypeMap.unsetTypeMap[type],
     setType: mongoTypeMap.setTypeMap[type],

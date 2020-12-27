@@ -3,6 +3,7 @@ import gql from 'graphql-tag'
 export const mongoTypeDefs = gql`
   directive @collection(name: String!, crud: Boolean) on OBJECT
   directive @filter on FIELD_DEFINITION
+  directive @textsearch on FIELD_DEFINITION
   directive @insert on FIELD_DEFINITION
   directive @update on FIELD_DEFINITION
   directive @unset on FIELD_DEFINITION
@@ -93,5 +94,12 @@ export const mongoTypeDefs = gql`
     LTE: ObjectId
     NE: ObjectId
     NIN: [ObjectId]
+  }
+
+  input TextSearch {
+    search: String
+    language: String
+    caseSensitive: Boolean
+    diacriticSensitive: Boolean
   }
 `

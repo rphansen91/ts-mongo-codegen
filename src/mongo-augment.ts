@@ -28,6 +28,7 @@ export const makeAugmentedSchema = (schema: GraphQLSchema, config?: AugmentConfi
     collectionMap,
     pageSchemaMap,
     filterSchemaMap,
+    textsearchSchemaMap,
     insertSchemaMap,
     unsetSchemaMap,
     setSchemaMap,
@@ -35,6 +36,7 @@ export const makeAugmentedSchema = (schema: GraphQLSchema, config?: AugmentConfi
     decSchemaMap,
     pageTypeMap,
     filterTypeMap,
+    textsearchTypeMap,
     insertTypeMap,
     unsetTypeMap,
     setTypeMap,
@@ -45,6 +47,7 @@ export const makeAugmentedSchema = (schema: GraphQLSchema, config?: AugmentConfi
     schema,
     ...values(pageSchemaMap).filter(isSchema),
     ...values(filterSchemaMap).filter(isSchema),
+    ...values(textsearchSchemaMap).filter(isSchema),
     ...values(insertSchemaMap).filter(isSchema),
     ...values(unsetSchemaMap).filter(isSchema),
     ...values(setSchemaMap).filter(isSchema),
@@ -53,6 +56,7 @@ export const makeAugmentedSchema = (schema: GraphQLSchema, config?: AugmentConfi
   ]
   const appendCrudQueryMapper = makeAppendCrudQueryMapper({
     collectionMap,
+    textsearchTypeMap,
     filterTypeMap,
     pageTypeMap,
   })
@@ -80,10 +84,12 @@ const makeAppendCrudQueryMapper = ({
   collectionMap,
   filterTypeMap,
   pageTypeMap,
+  textsearchTypeMap
 }: {
   collectionMap: CollectionMap
   pageTypeMap: { [x: string]: GraphQLObjectType }
   filterTypeMap: { [x: string]: GraphQLInputObjectType | null }
+  textsearchTypeMap: { [x: string]: GraphQLInputObjectType | null }
 }): ObjectTypeMapper => (type: GraphQLObjectType, schema: GraphQLSchema) => {
   const config = type.toConfig()
   const pagination = schema.getType('Pagination') as GraphQLInputObjectType
@@ -106,6 +112,11 @@ const makeAppendCrudQueryMapper = ({
       if (filterTypeMap[typeName]) {
         find.args.filter = {
           type: filterTypeMap[typeName],
+        }
+      }
+      if (textsearchTypeMap[typeName]) {
+        find.args.textsearch = {
+          type: textsearchTypeMap[typeName],
         }
       }
       const findById = {

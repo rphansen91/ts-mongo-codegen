@@ -13,6 +13,7 @@ import {
 } from './gql-utils'
 import capitalize from 'lodash/capitalize'
 import camelCase from 'lodash/camelCase'
+import values from 'lodash/values'
 
 export const addToSchema = mongoTypeDefs
 
@@ -41,7 +42,7 @@ export const plugin: PluginFunction<Partial<Config>> = (schema, documents, confi
     .filter(isGeneratedCollection)
 
   const content = `import { Db, Collection, ObjectID } from 'mongodb'
-import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from '@elevatejs/ts-mongo-codegen'
+import { mapFilterToMongo, mapUpdateToMongo, mapTextSearchToMongo, paginateCursor } from '@elevatejs/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
@@ -157,11 +158,12 @@ function generateQueryResolvers(
   { typeName, collectionName, capitalName, camelTypeName, mongoTypes }: GenerateCollectionArgs,
   contextType: string
 ) {
+  const textsearchType = mongoTypes.textsearchType
   const filterFields = gqlTypeToTypescript(mongoTypes.filterType)
   const filterArgsType = generate(`I${typeName}FilterArgs`, filterFields, 'type')
   const findArgsType = generate(
     `I${typeName}FindArgs`,
-    `{ filter: ${filterArgsType.name}, pagination: Pagination, sort: Sort }`,
+    `{ filter: ${filterArgsType.name}, ${textsearchType ? `textsearch: ${textsearchType.name}, ` : ''}pagination: Pagination, sort: Sort }`,
     'type'
   )
   const findByIdArgsType = generate(`I${typeName}FindByIdArgs`, '{ id: ObjectID }', 'type')
@@ -171,10 +173,16 @@ function generateQueryResolvers(
     'type'
   )
   const queryResolvers = `{
-  async find${pluralize(typeName)}(_: any, { filter, pagination, sort }: ${
+  ${textsearchType ? `async ensure${pluralize(typeName)}SearchIndex: ((_: any, a: any, context: ${contextType}) => {
+    return context.${collectionName}.createIndex({
+      ${values(textsearchType?.getFields()).map(({ name }) => `${name}: 'text'`).join(', ')}
+    })
+  },`: ''}
+  async find${pluralize(typeName)}(_: any, { filter, ${textsearchType ? 'textsearch, ' : ''}pagination, sort }: ${
     findArgsType.name
   }, context: ${contextType}) {
     const query = mapFilterToMongo(filter || {})
+    ${textsearchType ? `if (textsearch) query.$text = mapTextSearchToMongo(textsearch)` : ''}
     const total = () => context.${collectionName}.find(query).count()
     const data = () => paginateCursor(
       context.${collectionName}.find(query),

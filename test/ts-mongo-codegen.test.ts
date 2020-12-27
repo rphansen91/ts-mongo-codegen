@@ -31,8 +31,8 @@ input CategoryFilter {
 
 type Book @collection(name: "books", crud: true) {
   id: ObjectId
-  title: String @insert @set @unset @filter
-  author: String @insert @set @unset @filter
+  title: String @insert @set @unset @filter @textsearch
+  author: String @insert @set @unset @filter @textsearch
   category: Category @insert @set @unset @filter
 }
 
@@ -49,8 +49,8 @@ const schema = buildSchema(`
 
   type User @collection(name: "users", crud: true) {
     id: ObjectId
-    email: String @insert @set @unset @filter
-    username: String @insert @set @unset @filter
+    email: String @insert @set @unset @filter @textsearch
+    username: String @insert @set @unset @filter @textsearch
   }
 
   type Query {

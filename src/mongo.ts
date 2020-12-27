@@ -31,6 +31,13 @@ const graphqlToMongoUpdateMap = {
   DEC: '$dec',
 }
 
+const graphqlToMongoTextSearchMap = {
+  search: '$search',
+  language: '$language',
+  caseSensitive: '$caseSensitive',
+  diacriticSensitive: '$diacriticSensitive',
+}
+
 let mongo: MongoClient
 let promise: Promise<MongoClient>
 
@@ -40,6 +47,10 @@ export async function mongoConnect(uri: string, options?: MongoClientOptions) {
   mongo = await promise
   return mongo
 }
+
+export const mapTextSearchToMongo = deepFieldTransform((key: string) => {
+  return (graphqlToMongoTextSearchMap as any)[key] || key
+})
 
 export const mapFilterToMongo = deepFieldTransform((key: string) => {
   return (graphqlToMongoFilterMap as any)[key] || key

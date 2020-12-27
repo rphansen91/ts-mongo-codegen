@@ -2,7 +2,7 @@
 
 exports[`TS Mongo Codegen Should build book collection types: collectionBookTypes 1`] = `
 "import { Db, Collection, ObjectID } from 'mongodb'
-import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from '@elevatejs/ts-mongo-codegen'
+import { mapFilterToMongo, mapUpdateToMongo, mapTextSearchToMongo, paginateCursor } from '@elevatejs/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
@@ -22,15 +22,21 @@ export const bookResolvers: BookResolvers<IBookContext> = { id: fromMongoId }
 
 export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, category?: { EQ?: Category; GT?: Category; GTE?: Category; IN?: Category[]; ALL?: Category[]; LT?: Category; LTE?: Category; NE?: Category; NIN?: Category[]; } }
 
-export type IBookFindArgs = { filter: IBookFilterArgs, pagination: Pagination, sort: Sort }
+export type IBookFindArgs = { filter: IBookFilterArgs, textsearch: BookTextsearch, pagination: Pagination, sort: Sort }
 
 export type IBookFindByIdArgs = { id: ObjectID }
 
 export type IBooksFindByIdsArgs = { ids: ObjectID[] }
 
 export const bookQueryResolvers = {
-  async findBooks(_: any, { filter, pagination, sort }: IBookFindArgs, context: IBookContext) {
+  async ensureBooksSearchIndex: ((_: any, a: any, context: IBookContext) => {
+    return context.books.createIndex({
+      title: 'text', author: 'text'
+    })
+  },
+  async findBooks(_: any, { filter, textsearch, pagination, sort }: IBookFindArgs, context: IBookContext) {
     const query = mapFilterToMongo(filter || {})
+    if (textsearch) query.$text = mapTextSearchToMongo(textsearch)
     const total = () => context.books.find(query).count()
     const data = () => paginateCursor(
       context.books.find(query),
@@ -140,6 +146,8 @@ exports[`TS Mongo Codegen Should build crud operations for book: booksAugmentedS
 
 directive @filter on FIELD_DEFINITION
 
+directive @textsearch on FIELD_DEFINITION
+
 directive @insert on FIELD_DEFINITION
 
 directive @update on FIELD_DEFINITION
@@ -236,6 +244,13 @@ input ObjectIdFilter {
   LTE: ObjectId
   NE: ObjectId
   NIN: [ObjectId]
+}
+
+input TextSearch {
+  search: String
+  language: String
+  caseSensitive: Boolean
+  diacriticSensitive: Boolean
 }
 
 enum Category {
@@ -264,7 +279,7 @@ type Book {
 
 type Query {
   root: String
-  findBooks(pagination: Pagination, sort: Sort, filter: BookFilter): BookPage!
+  findBooks(pagination: Pagination, sort: Sort, filter: BookFilter, textsearch: BookTextsearch): BookPage!
   findBookById(id: ObjectId!): Book
   findBooksByIds(ids: [ObjectId!]!): [Book]
 }
@@ -288,6 +303,11 @@ input BookFilter {
   title: StringFilter
   author: StringFilter
   category: CategoryFilter
+}
+
+input BookTextsearch {
+  title: StringFilter
+  author: StringFilter
 }
 
 input BookInsert {
@@ -314,6 +334,8 @@ exports[`TS Mongo Codegen Should build crud operations: usersAugmentedSchema 1`]
 "directive @collection(name: String!, crud: Boolean) on OBJECT
 
 directive @filter on FIELD_DEFINITION
+
+directive @textsearch on FIELD_DEFINITION
 
 directive @insert on FIELD_DEFINITION
 
@@ -413,6 +435,13 @@ input ObjectIdFilter {
   NIN: [ObjectId]
 }
 
+input TextSearch {
+  search: String
+  language: String
+  caseSensitive: Boolean
+  diacriticSensitive: Boolean
+}
+
 type User {
   id: ObjectId
   email: String
@@ -421,7 +450,7 @@ type User {
 
 type Query {
   root: String
-  findUsers(pagination: Pagination, sort: Sort, filter: UserFilter): UserPage!
+  findUsers(pagination: Pagination, sort: Sort, filter: UserFilter, textsearch: UserTextsearch): UserPage!
   findUserById(id: ObjectId!): User
   findUsersByIds(ids: [ObjectId!]!): [User]
 }
@@ -446,6 +475,11 @@ input UserFilter {
   username: StringFilter
 }
 
+input UserTextsearch {
+  email: StringFilter
+  username: StringFilter
+}
+
 input UserInsert {
   email: String
   username: String
@@ -465,7 +499,7 @@ input UserSet {
 
 exports[`TS Mongo Codegen Should build user collection types: collectionTypes 1`] = `
 "import { Db, Collection, ObjectID } from 'mongodb'
-import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from '@elevatejs/ts-mongo-codegen'
+import { mapFilterToMongo, mapUpdateToMongo, mapTextSearchToMongo, paginateCursor } from '@elevatejs/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
@@ -485,15 +519,21 @@ export const userResolvers: UserResolvers<IUserContext> = { id: fromMongoId }
 
 export type IUserFilterArgs = { email?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, username?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; } }
 
-export type IUserFindArgs = { filter: IUserFilterArgs, pagination: Pagination, sort: Sort }
+export type IUserFindArgs = { filter: IUserFilterArgs, textsearch: UserTextsearch, pagination: Pagination, sort: Sort }
 
 export type IUserFindByIdArgs = { id: ObjectID }
 
 export type IUsersFindByIdsArgs = { ids: ObjectID[] }
 
 export const userQueryResolvers = {
-  async findUsers(_: any, { filter, pagination, sort }: IUserFindArgs, context: IUserContext) {
+  async ensureUsersSearchIndex: ((_: any, a: any, context: IUserContext) => {
+    return context.users.createIndex({
+      email: 'text', username: 'text'
+    })
+  },
+  async findUsers(_: any, { filter, textsearch, pagination, sort }: IUserFindArgs, context: IUserContext) {
     const query = mapFilterToMongo(filter || {})
+    if (textsearch) query.$text = mapTextSearchToMongo(textsearch)
     const total = () => context.users.find(query).count()
     const data = () => paginateCursor(
       context.users.find(query),
