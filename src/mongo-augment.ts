@@ -44,15 +44,14 @@ export const makeAugmentedSchema = (schema: GraphQLSchema, config?: AugmentConfi
     decTypeMap,
   } = buildMongoTypeMap(schema, config)
   const schemas = [
-    schema,
     ...values(pageSchemaMap).filter(isSchema),
     ...values(filterSchemaMap).filter(isSchema),
-    ...values(textsearchSchemaMap).filter(isSchema),
     ...values(insertSchemaMap).filter(isSchema),
     ...values(unsetSchemaMap).filter(isSchema),
     ...values(setSchemaMap).filter(isSchema),
     ...values(incSchemaMap).filter(isSchema),
     ...values(decSchemaMap).filter(isSchema),
+    schema,
   ]
   const appendCrudQueryMapper = makeAppendCrudQueryMapper({
     collectionMap,
@@ -92,6 +91,7 @@ const makeAppendCrudQueryMapper = ({
   textsearchTypeMap: { [x: string]: GraphQLInputObjectType | null }
 }): ObjectTypeMapper => (type: GraphQLObjectType, schema: GraphQLSchema) => {
   const config = type.toConfig()
+  const textsearch = schema.getType('TextSearch') as GraphQLInputObjectType
   const pagination = schema.getType('Pagination') as GraphQLInputObjectType
   const sort = schema.getType('Sort') as GraphQLInputObjectType
   const existingQueryFields = schema.getQueryType()?.getFields()
@@ -116,7 +116,7 @@ const makeAppendCrudQueryMapper = ({
       }
       if (textsearchTypeMap[typeName]) {
         find.args.textsearch = {
-          type: textsearchTypeMap[typeName],
+          type: textsearch,
         }
       }
       const findById = {

@@ -72,8 +72,7 @@ export function buildMongoTypeMap(schema: GraphQLSchema, config?: AugmentConfig)
   )
   const [textsearchSchemaMap, textsearchTypeMap] = buildFieldMap(
     'textsearch',
-    { collectionMap, schema },
-    geFieldFilterValue
+    { collectionMap, schema }
   )
   const [insertSchemaMap, insertTypeMap] = buildFieldMap('insert', { collectionMap, schema })
   const [unsetSchemaMap, unsetTypeMap] = buildFieldMap('unset', { collectionMap, schema })

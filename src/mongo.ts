@@ -1,13 +1,20 @@
 import { ObjectID, MongoClient, Cursor, MongoClientOptions } from 'mongodb'
 
-interface IPagination {
+export interface IPagination {
   perPage?: number | null
   page?: number | null
 }
 
-interface ISort {
+export interface ISort {
   field?: string | null
   order?: number | null
+}
+
+export interface ITextSearch {
+  search?: string | null
+  language?: string | null
+  caseSensitive?: boolean | null
+  diacriticSensitive?: boolean | null
 }
 
 const graphqlToMongoFilterMap = {
@@ -22,6 +29,7 @@ const graphqlToMongoFilterMap = {
   NIN: '$nin',
   TEXT: '$text',
   SEARCH: '$search',
+  REGEX: '$regex'
 }
 
 const graphqlToMongoUpdateMap = {

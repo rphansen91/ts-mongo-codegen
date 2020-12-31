@@ -42,7 +42,7 @@ export const plugin: PluginFunction<Partial<Config>> = (schema, documents, confi
     .filter(isGeneratedCollection)
 
   const content = `import { Db, Collection, ObjectID } from 'mongodb'
-import { mapFilterToMongo, mapUpdateToMongo, mapTextSearchToMongo, paginateCursor } from '@elevatejs/ts-mongo-codegen'
+import { mapFilterToMongo, mapUpdateToMongo, mapTextSearchToMongo, paginateCursor, ITextSearch } from '@elevatejs/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
@@ -163,7 +163,7 @@ function generateQueryResolvers(
   const filterArgsType = generate(`I${typeName}FilterArgs`, filterFields, 'type')
   const findArgsType = generate(
     `I${typeName}FindArgs`,
-    `{ filter: ${filterArgsType.name}, ${textsearchType ? `textsearch: ${textsearchType.name}, ` : ''}pagination: Pagination, sort: Sort }`,
+    `{ filter: ${filterArgsType.name}, ${textsearchType ? `textsearch: ITextSearch, ` : ''}pagination: Pagination, sort: Sort }`,
     'type'
   )
   const findByIdArgsType = generate(`I${typeName}FindByIdArgs`, '{ id: ObjectID }', 'type')
@@ -172,12 +172,13 @@ function generateQueryResolvers(
     '{ ids: ObjectID[] }',
     'type'
   )
-  const queryResolvers = `{
-  ${textsearchType ? `async ensure${pluralize(typeName)}SearchIndex: ((_: any, a: any, context: ${contextType}) => {
+  const indexFactory = textsearchType ? `async function (context: ${contextType}) {
     return context.${collectionName}.createIndex({
       ${values(textsearchType?.getFields()).map(({ name }) => `${name}: 'text'`).join(', ')}
     })
-  },`: ''}
+  }`: ''
+  const indexFactoryExport = indexFactory ? generate(`ensure${pluralize(typeName)}SearchIndex`, indexFactory, 'const') : null
+  const queryResolvers = `{
   async find${pluralize(typeName)}(_: any, { filter, ${textsearchType ? 'textsearch, ' : ''}pagination, sort }: ${
     findArgsType.name
   }, context: ${contextType}) {
@@ -207,7 +208,11 @@ function generateQueryResolvers(
   },
 }`
   const queryResolversExport = generate(`${camelTypeName}QueryResolvers`, queryResolvers, 'const')
-  return [filterArgsType, findArgsType, findByIdArgsType, findByIdsArgsType, queryResolversExport]
+  const exports = [filterArgsType, findArgsType, findByIdArgsType, findByIdsArgsType, queryResolversExport]
+  if (indexFactoryExport) {
+    exports.push(indexFactoryExport) 
+  }
+  return exports
 }
 
 function generateMutationResolvers(

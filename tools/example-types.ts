@@ -353,7 +353,7 @@ export type DirectiveResolvers<ContextType = any> = {
  */
 export type IDirectiveResolvers<ContextType = any> = DirectiveResolvers<ContextType>;
 import { Db, Collection, ObjectID } from 'mongodb'
-import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from '@elevatejs/ts-mongo-codegen'
+import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from '../src/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
