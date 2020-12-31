@@ -147,7 +147,7 @@
     "typescript": "^3.9.3"
   },
   "dependencies": {
-    "@graphql-codegen/plugin-helpers": "^1.15.4",
+    "@graphql-codegen/plugin-helpers": "^1.16.0",
     "@graphql-tools/merge": "^6.0.10",
     "@graphql-tools/schema": "^6.0.10",
     "@graphql-tools/utils": "^6.0.10",
