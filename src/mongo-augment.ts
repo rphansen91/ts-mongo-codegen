@@ -23,7 +23,9 @@ export const augmentResolvers = ({
   return resolvers
 }
 
-export const makeAugmentedSchema = (schema: GraphQLSchema, config?: AugmentConfig) => {
+export const makeAugmentedSchema = (options: GraphQLSchema|{schema: GraphQLSchema, resolvers?: any}, config?: AugmentConfig) => {
+  const schema = isSchema(options) ? options : options.schema
+  const resolvers = isSchema(options) ? {} : options.resolvers
   const {
     collectionMap,
     pageSchemaMap,
@@ -54,12 +56,14 @@ export const makeAugmentedSchema = (schema: GraphQLSchema, config?: AugmentConfi
     schema,
   ]
   const appendCrudQueryMapper = makeAppendCrudQueryMapper({
+    resolvers: resolvers?.Query,
     collectionMap,
     textsearchTypeMap,
     filterTypeMap,
     pageTypeMap,
   })
   const appendCrudMutationMapper = makeAppendCrudMutationMapper({
+    resolvers: resolvers?.Mutation,
     collectionMap,
     insertTypeMap,
     unsetTypeMap,
@@ -80,11 +84,13 @@ export const makeAugmentedSchema = (schema: GraphQLSchema, config?: AugmentConfi
 }
 
 const makeAppendCrudQueryMapper = ({
+  resolvers,
   collectionMap,
   filterTypeMap,
   pageTypeMap,
   textsearchTypeMap
 }: {
+  resolvers: any,
   collectionMap: CollectionMap
   pageTypeMap: { [x: string]: GraphQLObjectType }
   filterTypeMap: { [x: string]: GraphQLInputObjectType | null }
@@ -96,8 +102,8 @@ const makeAppendCrudQueryMapper = ({
   const sort = schema.getType('Sort') as GraphQLInputObjectType
   const existingQueryFields = schema.getQueryType()?.getFields()
   const appendFields = Object.keys(collectionMap)
-    .map((typeName) => {
-      const collection = collectionMap[typeName]
+  .map((typeName) => {
+    const collection = collectionMap[typeName]
       const find = {
         type: new GraphQLNonNull(pageTypeMap[typeName]),
         args: {
@@ -136,14 +142,26 @@ const makeAppendCrudQueryMapper = ({
         },
       }
       const queryFields: any = {}
-      if (!existingQueryFields?.[`find${pluralize(typeName)}`]) {
-        queryFields[`find${pluralize(typeName)}`] = find
+      const findName = `find${pluralize(typeName)}`
+      if (!existingQueryFields?.[findName]) {
+        queryFields[findName] = find
+        if (resolvers?.[findName]) {
+          queryFields[findName].resolve = resolvers[findName]
+        }
       }
-      if (!existingQueryFields?.[`find${typeName}ById`]) {
-        queryFields[`find${typeName}ById`] = findById
+      const findIdName = `find${typeName}ById`
+      if (!existingQueryFields?.[findIdName]) {
+        queryFields[findIdName] = findById
+        if (resolvers?.[findIdName]) {
+          queryFields[findIdName].resolve = resolvers[findIdName]
+        }
       }
-      if (!existingQueryFields?.[`find${pluralize(typeName)}ByIds`]) {
-        queryFields[`find${pluralize(typeName)}ByIds`] = findByIds
+      const findIdsName = `find${pluralize(typeName)}ByIds`
+      if (!existingQueryFields?.[findIdsName]) {
+        queryFields[findIdsName] = findByIds
+        if (resolvers?.[findIdsName]) {
+          queryFields[findIdsName].resolve = resolvers[findIdsName]
+        }
       }
       return queryFields
     })
@@ -158,6 +176,7 @@ const makeAppendCrudQueryMapper = ({
 }
 
 const makeAppendCrudMutationMapper = ({
+  resolvers,
   collectionMap,
   insertTypeMap,
   unsetTypeMap,
@@ -165,6 +184,7 @@ const makeAppendCrudMutationMapper = ({
   incTypeMap,
   decTypeMap,
 }: {
+  resolvers: any,
   collectionMap: CollectionMap
   insertTypeMap: { [x: string]: GraphQLInputObjectType | null }
   unsetTypeMap: { [x: string]: GraphQLInputObjectType | null }
@@ -183,8 +203,10 @@ const makeAppendCrudMutationMapper = ({
       const setType = setTypeMap[typeName]
       const incType = incTypeMap[typeName]
       const decType = decTypeMap[typeName]
+      const insertName = `insert${typeName}`
+      const insertManyName = `insertMany${pluralize(typeName)}`
       if (insertType) {
-        mutations[`insert${typeName}`] = {
+        mutations[insertName] = {
           type: collection,
           args: {
             [camelCase(typeName)]: {
@@ -192,7 +214,10 @@ const makeAppendCrudMutationMapper = ({
             },
           },
         }
-        mutations[`insertMany${pluralize(typeName)}`] = {
+        if (resolvers?.[insertName]) {
+          mutations[insertName].resolve = resolvers?.[insertName]
+        }
+        mutations[insertManyName] = {
           type: new GraphQLList(collection),
           args: {
             [pluralize(camelCase(typeName))]: {
@@ -200,15 +225,22 @@ const makeAppendCrudMutationMapper = ({
             },
           },
         }
+        if (resolvers?.[insertManyName]) {
+          mutations[insertManyName].resolve = resolvers?.[insertManyName]
+        }
       }
       if (unsetType || setType || incType || decType) {
+        const updateName = `update${typeName}`
+        const updateManyName = `updateMany${pluralize(typeName)}`
+
         const updateArgs: { [x: string]: any } = {}
         if (unsetType) updateArgs[`${camelCase(typeName)}Unset`] = { type: unsetType }
         if (setType) updateArgs[`${camelCase(typeName)}Set`] = { type: setType }
         if (incType) updateArgs[`${camelCase(typeName)}Inc`] = { type: incType }
         if (decType) updateArgs[`${camelCase(typeName)}Dec`] = { type: decType }
-        if (!existingMutationFields?.[`update${typeName}`]) {
-          mutations[`update${typeName}`] = {
+
+        if (!existingMutationFields?.[updateName]) {
+          mutations[updateName] = {
             type: collection,
             args: {
               id: {
@@ -217,9 +249,12 @@ const makeAppendCrudMutationMapper = ({
               ...updateArgs,
             },
           }
+          if (resolvers?.[updateName]) {
+            mutations[updateName].resolve = resolvers?.[updateName]
+          }
         }
-        if (!existingMutationFields?.[`updateMany${pluralize(typeName)}`]) {
-          mutations[`updateMany${pluralize(typeName)}`] = {
+        if (!existingMutationFields?.[updateManyName]) {
+          mutations[updateManyName] = {
             type: new GraphQLList(collection),
             args: {
               ids: {
@@ -228,10 +263,14 @@ const makeAppendCrudMutationMapper = ({
               ...updateArgs,
             },
           }
+          if (resolvers?.[updateManyName]) {
+            mutations[updateManyName].resolve = resolvers?.[updateManyName]
+          }
         }
       }
-      if (!existingMutationFields?.[`remove${typeName}`]) {
-        mutations[`remove${typeName}`] = {
+      const removeName = `remove${typeName}`
+      if (!existingMutationFields?.[removeName]) {
+        mutations[removeName] = {
           type: collection,
           args: {
             id: {
@@ -239,15 +278,22 @@ const makeAppendCrudMutationMapper = ({
             },
           },
         }
+        if (resolvers?.[removeName]) {
+          mutations[removeName].resolve = resolvers?.[removeName]
+        }
       }
-      if (!existingMutationFields?.[`removeMany${pluralize(typeName)}`]) {
-        mutations[`removeMany${pluralize(typeName)}`] = {
+      const removeManyName = `removeMany${pluralize(typeName)}`
+      if (!existingMutationFields?.[removeManyName]) {
+        mutations[removeManyName] = {
           type: new GraphQLList(collection),
           args: {
             ids: {
               type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(graphqlTypeObjectId))),
             },
           },
+        }
+        if (resolvers?.[removeManyName]) {
+          mutations[removeManyName].resolve = resolvers?.[removeManyName]
         }
       }
       return mutations

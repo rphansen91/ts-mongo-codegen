@@ -161,6 +161,32 @@ directive @inc on FIELD_DEFINITION
 
 directive @dec on FIELD_DEFINITION
 
+type BookPage {
+  total: Int
+  data: [Book]
+}
+
+type Book {
+  id: ObjectId
+  title: String
+  author: String
+  category: Category
+}
+
+scalar ObjectId
+
+enum Category {
+  drama
+  comedy
+}
+
+type Query {
+  root: String
+  findBooks(pagination: Pagination, sort: Sort, filter: BookFilter, textsearch: TextSearch): BookPage!
+  findBookById(id: ObjectId!): Book
+  findBooksByIds(ids: [ObjectId!]!): [Book]
+}
+
 input Pagination {
   perPage: Int
   page: Int
@@ -172,8 +198,6 @@ input Sort {
 }
 
 scalar Date
-
-scalar ObjectId
 
 input BooleanFilter {
   EQ: Boolean
@@ -255,11 +279,6 @@ input TextSearch {
   diacriticSensitive: Boolean
 }
 
-enum Category {
-  drama
-  comedy
-}
-
 input CategoryFilter {
   EQ: Category
   GT: Category
@@ -272,20 +291,6 @@ input CategoryFilter {
   NIN: [Category]
 }
 
-type Book {
-  id: ObjectId
-  title: String
-  author: String
-  category: Category
-}
-
-type Query {
-  root: String
-  findBooks(pagination: Pagination, sort: Sort, filter: BookFilter, textsearch: TextSearch): BookPage!
-  findBookById(id: ObjectId!): Book
-  findBooksByIds(ids: [ObjectId!]!): [Book]
-}
-
 type Mutation {
   root: String
   insertBook(book: BookInsert!): Book
@@ -294,11 +299,6 @@ type Mutation {
   updateManyBooks(ids: [ObjectId!]!, bookUnset: BookUnset, bookSet: BookSet): [Book]
   removeBook(id: ObjectId!): Book
   removeManyBooks(ids: [ObjectId!]!): [Book]
-}
-
-type BookPage {
-  total: Int
-  data: [Book]
 }
 
 input BookFilter {
@@ -346,6 +346,26 @@ directive @inc on FIELD_DEFINITION
 
 directive @dec on FIELD_DEFINITION
 
+type UserPage {
+  total: Int
+  data: [User]
+}
+
+type User {
+  id: ObjectId
+  email: String
+  username: String
+}
+
+scalar ObjectId
+
+type Query {
+  root: String
+  findUsers(pagination: Pagination, sort: Sort, filter: UserFilter, textsearch: TextSearch): UserPage!
+  findUserById(id: ObjectId!): User
+  findUsersByIds(ids: [ObjectId!]!): [User]
+}
+
 input Pagination {
   perPage: Int
   page: Int
@@ -357,8 +377,6 @@ input Sort {
 }
 
 scalar Date
-
-scalar ObjectId
 
 input BooleanFilter {
   EQ: Boolean
@@ -440,19 +458,6 @@ input TextSearch {
   diacriticSensitive: Boolean
 }
 
-type User {
-  id: ObjectId
-  email: String
-  username: String
-}
-
-type Query {
-  root: String
-  findUsers(pagination: Pagination, sort: Sort, filter: UserFilter, textsearch: TextSearch): UserPage!
-  findUserById(id: ObjectId!): User
-  findUsersByIds(ids: [ObjectId!]!): [User]
-}
-
 type Mutation {
   root: String
   insertUser(user: UserInsert!): User
@@ -461,11 +466,6 @@ type Mutation {
   updateManyUsers(ids: [ObjectId!]!, userUnset: UserUnset, userSet: UserSet): [User]
   removeUser(id: ObjectId!): User
   removeManyUsers(ids: [ObjectId!]!): [User]
-}
-
-type UserPage {
-  total: Int
-  data: [User]
 }
 
 input UserFilter {
