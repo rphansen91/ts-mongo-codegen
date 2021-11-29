@@ -1,6 +1,6 @@
 {
   "name": "@elevatejs/ts-mongo-codegen",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "This project generates types for a seamless integration between GraphQL and MongoDB.",
   "keywords": [
     "graphql",

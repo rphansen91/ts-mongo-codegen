@@ -132,6 +132,7 @@ export const bookMutationResolvers = {
 }
 
 export const bookCrudResolvers = { Query: bookQueryResolvers, Mutation: bookMutationResolvers, Book: bookResolvers }
+export const crudResolvers = [bookCrudResolvers]
 
 export function mongoCollectionFactory (db: Db) {
   const books = getBooksCollection(db)
@@ -626,6 +627,7 @@ export const userMutationResolvers = {
 }
 
 export const userCrudResolvers = { Query: userQueryResolvers, Mutation: userMutationResolvers, User: userResolvers }
+export const crudResolvers = [userCrudResolvers]
 
 export function mongoCollectionFactory (db: Db) {
   const users = getUsersCollection(db)

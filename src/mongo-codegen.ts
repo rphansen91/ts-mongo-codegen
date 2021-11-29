@@ -53,6 +53,13 @@ export const fromMongoId = (obj: any) => {
 }
 
 ${collections.map(({ exports }) => exports.map(generateExport).join('\n\n')).join('\n\n')}
+${generateExport({
+  name: 'crudResolvers',
+  type: 'const',
+  value: `[${collections
+    .map(({ resolvers }) => resolvers.map(({ name }) => name).join(', '))
+    .join(', ')}]`,
+})}
 
 export function mongoCollectionFactory (db: Db) {
   ${collections.map(({ factories }) => factories.map(generateExecute)).join('\n')}
@@ -98,6 +105,7 @@ function buildMongoCollection(
     'const'
   )
   const exports = [collectionType, contextType, getCollectionExport]
+  const resolvers = []
 
   // TODO: USE FIELD THAT USER SETS AS ObjectID
   if (includeCrud) {
@@ -113,12 +121,14 @@ function buildMongoCollection(
     exports.push(...queryResolvers)
     exports.push(...mutationResolvers)
     exports.push(...crudResolvers)
+    resolvers.push(...crudResolvers)
   }
   return {
     typeName,
     capitalName,
     collectionName,
     exports,
+    resolvers,
     factories: [
       {
         name: collectionName,
