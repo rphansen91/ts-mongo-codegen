@@ -165,6 +165,7 @@ export function buildFieldMap(
     ${printSchema(schema)}
     input ${name}${capitalize(type)} {
       ${types}
+      ${capitalize(type) === 'Filter' ? `OR: [${name}${capitalize(type)}]` : ''}
     }`)
   })
   const types = mapValues(schemas, (schema, name) => {

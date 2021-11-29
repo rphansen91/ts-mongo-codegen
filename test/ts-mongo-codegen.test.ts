@@ -75,6 +75,11 @@ describe('TS Mongo Codegen', () => {
         LTE: '$lte',
         NE: '$ne',
         NIN: ['1'],
+        OR: [{
+          text: {REGEX: 'sku'}
+        }, {
+          sku: {REGEX: 'sku'}
+        }],
         TEXT: {
           SEARCH: 'hello'
         }
@@ -89,6 +94,11 @@ describe('TS Mongo Codegen', () => {
       $lte: '$lte',
       $ne: '$ne',
       $nin: ['1'],
+      $or: [{
+        text: {$regex: 'sku'}
+      }, {
+        sku: {$regex: 'sku'}
+      }],
       $text: {
         $search: 'hello'
       }

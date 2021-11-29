@@ -71,6 +71,7 @@ export const mongoTypeDefs = gql`
     NE: String
     NIN: [String]
     REGEX: String
+    OPTIONS: String
   }
 
   input DateFilter {

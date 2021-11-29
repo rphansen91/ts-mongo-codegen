@@ -88,9 +88,9 @@ const makeAppendCrudQueryMapper = ({
   collectionMap,
   filterTypeMap,
   pageTypeMap,
-  textsearchTypeMap
+  textsearchTypeMap,
 }: {
-  resolvers: any,
+  resolvers: any
   collectionMap: CollectionMap
   pageTypeMap: { [x: string]: GraphQLObjectType }
   filterTypeMap: { [x: string]: GraphQLInputObjectType | null }
@@ -184,7 +184,7 @@ const makeAppendCrudMutationMapper = ({
   incTypeMap,
   decTypeMap,
 }: {
-  resolvers: any,
+  resolvers: any
   collectionMap: CollectionMap
   insertTypeMap: { [x: string]: GraphQLInputObjectType | null }
   unsetTypeMap: { [x: string]: GraphQLInputObjectType | null }

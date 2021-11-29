@@ -163,27 +163,39 @@ function generateQueryResolvers(
   const filterArgsType = generate(`I${typeName}FilterArgs`, filterFields, 'type')
   const findArgsType = generate(
     `I${typeName}FindArgs`,
-    `{ filter: ${filterArgsType.name}, ${textsearchType ? `textsearch: ITextSearch, ` : ''}pagination: Pagination, sort: Sort }`,
+    `{ filter: ${filterArgsType.name}, ${
+      textsearchType ? 'textsearch: ITextSearch, ' : ''
+    }pagination: Pagination, sort: Sort }`,
     'type'
   )
-  const findByIdArgsType = generate(`I${typeName}FindByIdArgs`, '{ id: ObjectID }', 'type')
+  const findByIdArgsType = generate(
+    `I${typeName}FindByIdArgs`,
+    '{ id: ObjectID; filter?: any; }',
+    'type'
+  )
   const findByIdsArgsType = generate(
     `I${pluralize(typeName)}FindByIdsArgs`,
-    '{ ids: ObjectID[] }',
+    '{ ids: ObjectID[]; filter?: any; }',
     'type'
   )
-  const indexFactory = textsearchType ? `async function (context: ${contextType}) {
+  const indexFactory = textsearchType
+    ? `async function (context: ${contextType}) {
     return context.${collectionName}.createIndex({
-      ${values(textsearchType?.getFields()).map(({ name }) => `${name}: 'text'`).join(', ')}
+      ${values(textsearchType?.getFields())
+        .map(({ name }) => `${name}: 'text'`)
+        .join(', ')}
     })
-  }`: ''
-  const indexFactoryExport = indexFactory ? generate(`ensure${pluralize(typeName)}SearchIndex`, indexFactory, 'const') : null
+  }`
+    : ''
+  const indexFactoryExport = indexFactory
+    ? generate(`ensure${pluralize(typeName)}SearchIndex`, indexFactory, 'const')
+    : null
   const queryResolvers = `{
-  async find${pluralize(typeName)}(_: any, { filter, ${textsearchType ? 'textsearch, ' : ''}pagination, sort }: ${
-    findArgsType.name
-  }, context: ${contextType}) {
+  async find${pluralize(typeName)}(_: any, { filter, ${
+    textsearchType ? 'textsearch, ' : ''
+  }pagination, sort }: ${findArgsType.name}, context: ${contextType}) {
     const query = mapFilterToMongo(filter || {})
-    ${textsearchType ? `if (textsearch) query.$text = mapTextSearchToMongo(textsearch)` : ''}
+    ${textsearchType ? 'if (textsearch) query.$text = mapTextSearchToMongo(textsearch)' : ''}
     const total = () => context.${collectionName}.find(query).count()
     const data = () => paginateCursor(
       context.${collectionName}.find(query),
@@ -194,23 +206,31 @@ function generateQueryResolvers(
       data
     }
   },
-  async find${typeName}ById(_: any, { id }: ${findByIdArgsType.name}, context: ${contextType}) {
-    return context.${collectionName}.findOne({ _id: id })
+  async find${typeName}ById(_: any, { id, filter }: ${
+    findByIdArgsType.name
+  }, context: ${contextType}) {
+    return context.${collectionName}.findOne({ _id: id, ...filter })
   },
-  async find${pluralize(typeName)}ByIds(_: any, { ids }: ${
+  async find${pluralize(typeName)}ByIds(_: any, { ids, filter }: ${
     findByIdsArgsType.name
   }, context: ${contextType}) {
     const ${pluralize(
       collectionName
-    )} = await context.${collectionName}.find({ _id: { $in: ids } }).toArray()
+    )} = await context.${collectionName}.find({ _id: { $in: ids }, ...filter }).toArray()
     const ${collectionName}ById = keyBy(${pluralize(collectionName)}, fromMongoId)
     return ids.map(id => id.toHexString()).map(id => ${collectionName}ById[id])
   },
 }`
   const queryResolversExport = generate(`${camelTypeName}QueryResolvers`, queryResolvers, 'const')
-  const exports = [filterArgsType, findArgsType, findByIdArgsType, findByIdsArgsType, queryResolversExport]
+  const exports = [
+    filterArgsType,
+    findArgsType,
+    findByIdArgsType,
+    findByIdsArgsType,
+    queryResolversExport,
+  ]
   if (indexFactoryExport) {
-    exports.push(indexFactoryExport) 
+    exports.push(indexFactoryExport)
   }
   return exports
 }

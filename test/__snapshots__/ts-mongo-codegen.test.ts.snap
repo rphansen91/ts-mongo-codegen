@@ -20,13 +20,13 @@ export const getBooksCollection = (db: Db) => db.collection<Book>('books')
 
 export const bookResolvers: BookResolvers<IBookContext> = { id: fromMongoId }
 
-export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, category?: { EQ?: Category; GT?: Category; GTE?: Category; IN?: Category[]; ALL?: Category[]; LT?: Category; LTE?: Category; NE?: Category; NIN?: Category[]; } }
+export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, category?: { EQ?: Category; GT?: Category; GTE?: Category; IN?: Category[]; ALL?: Category[]; LT?: Category; LTE?: Category; NE?: Category; NIN?: Category[]; }, OR?: { EQ?: Book; GT?: Book; GTE?: Book; IN?: Book[]; ALL?: Book[]; LT?: Book; LTE?: Book; NE?: Book; NIN?: Book[]; }[] }
 
 export type IBookFindArgs = { filter: IBookFilterArgs, textsearch: ITextSearch, pagination: Pagination, sort: Sort }
 
-export type IBookFindByIdArgs = { id: ObjectID }
+export type IBookFindByIdArgs = { id: ObjectID; filter?: any; }
 
-export type IBooksFindByIdsArgs = { ids: ObjectID[] }
+export type IBooksFindByIdsArgs = { ids: ObjectID[]; filter?: any; }
 
 export const bookQueryResolvers = {
   async findBooks(_: any, { filter, textsearch, pagination, sort }: IBookFindArgs, context: IBookContext) {
@@ -42,11 +42,11 @@ export const bookQueryResolvers = {
       data
     }
   },
-  async findBookById(_: any, { id }: IBookFindByIdArgs, context: IBookContext) {
-    return context.books.findOne({ _id: id })
+  async findBookById(_: any, { id, filter }: IBookFindByIdArgs, context: IBookContext) {
+    return context.books.findOne({ _id: id, ...filter })
   },
-  async findBooksByIds(_: any, { ids }: IBooksFindByIdsArgs, context: IBookContext) {
-    const books = await context.books.find({ _id: { $in: ids } }).toArray()
+  async findBooksByIds(_: any, { ids, filter }: IBooksFindByIdsArgs, context: IBookContext) {
+    const books = await context.books.find({ _id: { $in: ids }, ...filter }).toArray()
     const booksById = keyBy(books, fromMongoId)
     return ids.map(id => id.toHexString()).map(id => booksById[id])
   },
@@ -246,6 +246,7 @@ input StringFilter {
   NE: String
   NIN: [String]
   REGEX: String
+  OPTIONS: String
 }
 
 input DateFilter {
@@ -305,6 +306,7 @@ input BookFilter {
   title: StringFilter
   author: StringFilter
   category: CategoryFilter
+  OR: [BookFilter]
 }
 
 input BookInsert {
@@ -425,6 +427,7 @@ input StringFilter {
   NE: String
   NIN: [String]
   REGEX: String
+  OPTIONS: String
 }
 
 input DateFilter {
@@ -471,6 +474,7 @@ type Mutation {
 input UserFilter {
   email: StringFilter
   username: StringFilter
+  OR: [UserFilter]
 }
 
 input UserInsert {
@@ -510,13 +514,13 @@ export const getUsersCollection = (db: Db) => db.collection<User>('users')
 
 export const userResolvers: UserResolvers<IUserContext> = { id: fromMongoId }
 
-export type IUserFilterArgs = { email?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, username?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; } }
+export type IUserFilterArgs = { email?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, username?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, OR?: { EQ?: User; GT?: User; GTE?: User; IN?: User[]; ALL?: User[]; LT?: User; LTE?: User; NE?: User; NIN?: User[]; }[] }
 
 export type IUserFindArgs = { filter: IUserFilterArgs, textsearch: ITextSearch, pagination: Pagination, sort: Sort }
 
-export type IUserFindByIdArgs = { id: ObjectID }
+export type IUserFindByIdArgs = { id: ObjectID; filter?: any; }
 
-export type IUsersFindByIdsArgs = { ids: ObjectID[] }
+export type IUsersFindByIdsArgs = { ids: ObjectID[]; filter?: any; }
 
 export const userQueryResolvers = {
   async findUsers(_: any, { filter, textsearch, pagination, sort }: IUserFindArgs, context: IUserContext) {
@@ -532,11 +536,11 @@ export const userQueryResolvers = {
       data
     }
   },
-  async findUserById(_: any, { id }: IUserFindByIdArgs, context: IUserContext) {
-    return context.users.findOne({ _id: id })
+  async findUserById(_: any, { id, filter }: IUserFindByIdArgs, context: IUserContext) {
+    return context.users.findOne({ _id: id, ...filter })
   },
-  async findUsersByIds(_: any, { ids }: IUsersFindByIdsArgs, context: IUserContext) {
-    const users = await context.users.find({ _id: { $in: ids } }).toArray()
+  async findUsersByIds(_: any, { ids, filter }: IUsersFindByIdsArgs, context: IUserContext) {
+    const users = await context.users.find({ _id: { $in: ids }, ...filter }).toArray()
     const usersById = keyBy(users, fromMongoId)
     return ids.map(id => id.toHexString()).map(id => usersById[id])
   },

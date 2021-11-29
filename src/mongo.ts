@@ -29,7 +29,9 @@ const graphqlToMongoFilterMap = {
   NIN: '$nin',
   TEXT: '$text',
   SEARCH: '$search',
-  REGEX: '$regex'
+  REGEX: '$regex',
+  OPTIONS: '$options',
+  OR: '$or'
 }
 
 const graphqlToMongoUpdateMap = {
