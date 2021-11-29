@@ -23,7 +23,15 @@ export const augmentResolvers = ({
   return resolvers
 }
 
-export const makeAugmentedSchema = (options: GraphQLSchema|{schema: GraphQLSchema, resolvers?: any}, config?: AugmentConfig) => {
+export const makeAugmentedSchema = (
+  options:
+    | GraphQLSchema
+    | {
+        schema: GraphQLSchema
+        resolvers?: any
+      },
+  config?: AugmentConfig
+) => {
   const schema = isSchema(options) ? options : options.schema
   const resolvers = isSchema(options) ? {} : options.resolvers
   const {
@@ -102,8 +110,8 @@ const makeAppendCrudQueryMapper = ({
   const sort = schema.getType('Sort') as GraphQLInputObjectType
   const existingQueryFields = schema.getQueryType()?.getFields()
   const appendFields = Object.keys(collectionMap)
-  .map((typeName) => {
-    const collection = collectionMap[typeName]
+    .map((typeName) => {
+      const collection = collectionMap[typeName]
       const find = {
         type: new GraphQLNonNull(pageTypeMap[typeName]),
         args: {

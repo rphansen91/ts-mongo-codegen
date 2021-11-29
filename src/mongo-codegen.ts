@@ -41,7 +41,7 @@ export const plugin: PluginFunction<Partial<Config>> = (schema, documents, confi
     })
     .filter(isGeneratedCollection)
 
-  const content = `import { Db, Collection, ObjectID } from 'mongodb'
+  const content = `import { Db, Collection, ObjectId } from 'mongodb'
 import { mapFilterToMongo, mapUpdateToMongo, mapTextSearchToMongo, paginateCursor, ITextSearch } from '@elevatejs/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
@@ -170,12 +170,12 @@ function generateQueryResolvers(
   )
   const findByIdArgsType = generate(
     `I${typeName}FindByIdArgs`,
-    '{ id: ObjectID; filter?: any; }',
+    '{ id: ObjectId; filter?: any; }',
     'type'
   )
   const findByIdsArgsType = generate(
     `I${pluralize(typeName)}FindByIdsArgs`,
-    '{ ids: ObjectID[]; filter?: any; }',
+    '{ ids: ObjectId[]; filter?: any; }',
     'type'
   )
   const indexFactory = textsearchType
@@ -301,12 +301,12 @@ function generateMutationResolvers(
     .join(', ')
   const updateArgsType = generate(
     `I${typeName}UpdateArgs`,
-    `{ id: ObjectID, filter: any, ${updateTypes} }`,
+    `{ id: ObjectId, filter: any, ${updateTypes} }`,
     'type'
   )
   const updateManyArgsType = generate(
     `I${pluralize(typeName)}UpdateManyArgs`,
-    `{ ids: ObjectID[], filter: any, ${updateTypes} }`,
+    `{ ids: ObjectId[], filter: any, ${updateTypes} }`,
     'type'
   )
   const updateGraphqlArgs = [
@@ -357,12 +357,12 @@ function generateMutationResolvers(
 
   const removeByIdArgsType = generate(
     `I${typeName}RemoveArgs`,
-    '{ id: ObjectID, filter: any }',
+    '{ id: ObjectId, filter: any }',
     'type'
   )
   const removeByIdsArgsType = generate(
     `I${pluralize(typeName)}RemoveManyArgs`,
-    '{ ids: ObjectID[], filter: any }',
+    '{ ids: ObjectId[], filter: any }',
     'type'
   )
   const remove = `  async remove${typeName}(_: any, { id, filter }: ${removeByIdArgsType.name}, context: ${contextType}) {

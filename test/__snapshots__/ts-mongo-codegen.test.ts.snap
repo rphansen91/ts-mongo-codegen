@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`TS Mongo Codegen Should build book collection types: collectionBookTypes 1`] = `
-"import { Db, Collection, ObjectID } from 'mongodb'
+"import { Db, Collection, ObjectId } from 'mongodb'
 import { mapFilterToMongo, mapUpdateToMongo, mapTextSearchToMongo, paginateCursor, ITextSearch } from '@elevatejs/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
@@ -24,9 +24,9 @@ export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string
 
 export type IBookFindArgs = { filter: IBookFilterArgs, textsearch: ITextSearch, pagination: Pagination, sort: Sort }
 
-export type IBookFindByIdArgs = { id: ObjectID; filter?: any; }
+export type IBookFindByIdArgs = { id: ObjectId; filter?: any; }
 
-export type IBooksFindByIdsArgs = { ids: ObjectID[]; filter?: any; }
+export type IBooksFindByIdsArgs = { ids: ObjectId[]; filter?: any; }
 
 export const bookQueryResolvers = {
   async findBooks(_: any, { filter, textsearch, pagination, sort }: IBookFindArgs, context: IBookContext) {
@@ -72,13 +72,13 @@ export type IBookDecArgs = {  }
 
 export type IBookIncArgs = {  }
 
-export type IBookUpdateArgs = { id: ObjectID, filter: any, bookSet: IBookSetArgs }
+export type IBookUpdateArgs = { id: ObjectId, filter: any, bookSet: IBookSetArgs }
 
-export type IBooksUpdateManyArgs = { ids: ObjectID[], filter: any, bookSet: IBookSetArgs }
+export type IBooksUpdateManyArgs = { ids: ObjectId[], filter: any, bookSet: IBookSetArgs }
 
-export type IBookRemoveArgs = { id: ObjectID, filter: any }
+export type IBookRemoveArgs = { id: ObjectId, filter: any }
 
-export type IBooksRemoveManyArgs = { ids: ObjectID[], filter: any }
+export type IBooksRemoveManyArgs = { ids: ObjectId[], filter: any }
 
 export const bookMutationResolvers = {
   async insertBook(_: any, { book }: IBookInsertArgs, context: IBookContext) {
@@ -495,7 +495,7 @@ input UserSet {
 `;
 
 exports[`TS Mongo Codegen Should build user collection types: collectionTypes 1`] = `
-"import { Db, Collection, ObjectID } from 'mongodb'
+"import { Db, Collection, ObjectId } from 'mongodb'
 import { mapFilterToMongo, mapUpdateToMongo, mapTextSearchToMongo, paginateCursor, ITextSearch } from '@elevatejs/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
@@ -518,9 +518,9 @@ export type IUserFilterArgs = { email?: { EQ?: string; GT?: string; GTE?: string
 
 export type IUserFindArgs = { filter: IUserFilterArgs, textsearch: ITextSearch, pagination: Pagination, sort: Sort }
 
-export type IUserFindByIdArgs = { id: ObjectID; filter?: any; }
+export type IUserFindByIdArgs = { id: ObjectId; filter?: any; }
 
-export type IUsersFindByIdsArgs = { ids: ObjectID[]; filter?: any; }
+export type IUsersFindByIdsArgs = { ids: ObjectId[]; filter?: any; }
 
 export const userQueryResolvers = {
   async findUsers(_: any, { filter, textsearch, pagination, sort }: IUserFindArgs, context: IUserContext) {
@@ -566,13 +566,13 @@ export type IUserDecArgs = {  }
 
 export type IUserIncArgs = {  }
 
-export type IUserUpdateArgs = { id: ObjectID, filter: any, userSet: IUserSetArgs }
+export type IUserUpdateArgs = { id: ObjectId, filter: any, userSet: IUserSetArgs }
 
-export type IUsersUpdateManyArgs = { ids: ObjectID[], filter: any, userSet: IUserSetArgs }
+export type IUsersUpdateManyArgs = { ids: ObjectId[], filter: any, userSet: IUserSetArgs }
 
-export type IUserRemoveArgs = { id: ObjectID, filter: any }
+export type IUserRemoveArgs = { id: ObjectId, filter: any }
 
-export type IUsersRemoveManyArgs = { ids: ObjectID[], filter: any }
+export type IUsersRemoveManyArgs = { ids: ObjectId[], filter: any }
 
 export const userMutationResolvers = {
   async insertUser(_: any, { user }: IUserInsertArgs, context: IUserContext) {

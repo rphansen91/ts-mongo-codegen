@@ -70,10 +70,10 @@ export function buildMongoTypeMap(schema: GraphQLSchema, config?: AugmentConfig)
     { collectionMap, schema },
     geFieldFilterValue
   )
-  const [textsearchSchemaMap, textsearchTypeMap] = buildFieldMap(
-    'textsearch',
-    { collectionMap, schema }
-  )
+  const [textsearchSchemaMap, textsearchTypeMap] = buildFieldMap('textsearch', {
+    collectionMap,
+    schema,
+  })
   const [insertSchemaMap, insertTypeMap] = buildFieldMap('insert', { collectionMap, schema })
   const [unsetSchemaMap, unsetTypeMap] = buildFieldMap('unset', { collectionMap, schema })
   const [setSchemaMap, setTypeMap] = buildFieldMap('set', { collectionMap, schema })
@@ -213,7 +213,7 @@ function gqlScalarToTypescript(type: string): string {
     case 'Boolean':
       return 'boolean'
     case 'ObjectId':
-      return 'ObjectID'
+      return 'ObjectId'
     default:
       return type.replace(/!$/, '')
   }

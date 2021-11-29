@@ -7,7 +7,7 @@ import {
   graphqlTypeDate
 } from '../src/ts-mongo-codegen'
 import { print, buildSchema, astFromValue, ValueNode, printSchema } from 'graphql'
-import { ObjectID } from 'mongodb'
+import { ObjectId } from 'mongodb'
 import { makeAugmentedSchema } from '../src/mongo-augment'
 
 const bookSchema = buildSchema(`
@@ -129,12 +129,12 @@ describe('TS Mongo Codegen', () => {
     })
   })
 
-  it('Should implement ObjectID Scalar', () => {
-    const id = new ObjectID()
+  it('Should implement ObjectId Scalar', () => {
+    const id = new ObjectId()
     const idSerialized = id.toHexString()
     const astValue = astFromValue(id, graphqlTypeObjectId) as ValueNode
-    expect(graphqlTypeObjectId.parseLiteral(astValue, {})).toBeInstanceOf(ObjectID)
-    expect(graphqlTypeObjectId.parseValue(idSerialized)).toBeInstanceOf(ObjectID)
+    expect(graphqlTypeObjectId.parseLiteral(astValue, {})).toBeInstanceOf(ObjectId)
+    expect(graphqlTypeObjectId.parseValue(idSerialized)).toBeInstanceOf(ObjectId)
     expect(graphqlTypeObjectId.serialize(id)).toBe(idSerialized)
   })
 

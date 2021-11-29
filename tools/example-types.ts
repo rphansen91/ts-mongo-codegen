@@ -1,6 +1,8 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
-export type Exact<T extends { [key: string]: any }> = { [K in keyof T]: T[K] };
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -11,6 +13,8 @@ export type Scalars = {
   Date: any;
   ObjectId: any;
 };
+
+
 
 
 
@@ -31,6 +35,18 @@ export type Sort = {
 };
 
 
+
+export type BooleanFilter = {
+  EQ?: Maybe<Scalars['Boolean']>;
+  GT?: Maybe<Scalars['Boolean']>;
+  GTE?: Maybe<Scalars['Boolean']>;
+  IN?: Maybe<Array<Maybe<Scalars['Boolean']>>>;
+  ALL?: Maybe<Array<Maybe<Scalars['Boolean']>>>;
+  LT?: Maybe<Scalars['Boolean']>;
+  LTE?: Maybe<Scalars['Boolean']>;
+  NE?: Maybe<Scalars['Boolean']>;
+  NIN?: Maybe<Array<Maybe<Scalars['Boolean']>>>;
+};
 
 export type IntFilter = {
   EQ?: Maybe<Scalars['Int']>;
@@ -66,6 +82,8 @@ export type StringFilter = {
   LTE?: Maybe<Scalars['String']>;
   NE?: Maybe<Scalars['String']>;
   NIN?: Maybe<Array<Maybe<Scalars['String']>>>;
+  REGEX?: Maybe<Scalars['String']>;
+  OPTIONS?: Maybe<Scalars['String']>;
 };
 
 export type DateFilter = {
@@ -90,6 +108,13 @@ export type ObjectIdFilter = {
   LTE?: Maybe<Scalars['ObjectId']>;
   NE?: Maybe<Scalars['ObjectId']>;
   NIN?: Maybe<Array<Maybe<Scalars['ObjectId']>>>;
+};
+
+export type TextSearch = {
+  search?: Maybe<Scalars['String']>;
+  language?: Maybe<Scalars['String']>;
+  caseSensitive?: Maybe<Scalars['Boolean']>;
+  diacriticSensitive?: Maybe<Scalars['Boolean']>;
 };
 
 export enum Category {
@@ -133,7 +158,6 @@ export type Mutation = {
   __typename?: 'Mutation';
   root?: Maybe<Scalars['String']>;
 };
-
 
 
 
@@ -199,7 +223,7 @@ export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
   info: GraphQLResolveInfo
 ) => Maybe<TTypes> | Promise<Maybe<TTypes>>;
 
-export type IsTypeOfResolverFn<T = {}> = (obj: T, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
+export type IsTypeOfResolverFn<T = {}, TContext = {}> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
 
 export type NextResolverFn<T> = () => Promise<T>;
 
@@ -219,19 +243,21 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   ObjectId: ResolverTypeWrapper<Scalars['ObjectId']>;
+  BooleanFilter: BooleanFilter;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   IntFilter: IntFilter;
   FloatFilter: FloatFilter;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   StringFilter: StringFilter;
   DateFilter: DateFilter;
   ObjectIdFilter: ObjectIdFilter;
+  TextSearch: TextSearch;
   Category: Category;
   CategoryFilter: CategoryFilter;
   Author: ResolverTypeWrapper<Author>;
   Book: ResolverTypeWrapper<Book>;
   Query: ResolverTypeWrapper<{}>;
   Mutation: ResolverTypeWrapper<{}>;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -242,18 +268,20 @@ export type ResolversParentTypes = {
   String: Scalars['String'];
   Date: Scalars['Date'];
   ObjectId: Scalars['ObjectId'];
+  BooleanFilter: BooleanFilter;
+  Boolean: Scalars['Boolean'];
   IntFilter: IntFilter;
   FloatFilter: FloatFilter;
   Float: Scalars['Float'];
   StringFilter: StringFilter;
   DateFilter: DateFilter;
   ObjectIdFilter: ObjectIdFilter;
+  TextSearch: TextSearch;
   CategoryFilter: CategoryFilter;
   Author: Author;
   Book: Book;
   Query: {};
   Mutation: {};
-  Boolean: Scalars['Boolean'];
 };
 
 export type CollectionDirectiveArgs = {   name: Scalars['String'];
@@ -264,6 +292,10 @@ export type CollectionDirectiveResolver<Result, Parent, ContextType = any, Args 
 export type FilterDirectiveArgs = {  };
 
 export type FilterDirectiveResolver<Result, Parent, ContextType = any, Args = FilterDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type TextsearchDirectiveArgs = {  };
+
+export type TextsearchDirectiveResolver<Result, Parent, ContextType = any, Args = TextsearchDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type InsertDirectiveArgs = {  };
 
@@ -289,6 +321,10 @@ export type DecDirectiveArgs = {  };
 
 export type DecDirectiveResolver<Result, Parent, ContextType = any, Args = DecDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
+export type AuthDirectiveArgs = {  };
+
+export type AuthDirectiveResolver<Result, Parent, ContextType = any, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
@@ -300,7 +336,7 @@ export interface ObjectIdScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 export type AuthorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Author'] = ResolversParentTypes['Author']> = {
   id?: Resolver<Maybe<ResolversTypes['ObjectId']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type BookResolvers<ContextType = any, ParentType extends ResolversParentTypes['Book'] = ResolversParentTypes['Book']> = {
@@ -309,7 +345,7 @@ export type BookResolvers<ContextType = any, ParentType extends ResolversParentT
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
   category?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
@@ -338,12 +374,14 @@ export type IResolvers<ContextType = any> = Resolvers<ContextType>;
 export type DirectiveResolvers<ContextType = any> = {
   collection?: CollectionDirectiveResolver<any, any, ContextType>;
   filter?: FilterDirectiveResolver<any, any, ContextType>;
+  textsearch?: TextsearchDirectiveResolver<any, any, ContextType>;
   insert?: InsertDirectiveResolver<any, any, ContextType>;
   update?: UpdateDirectiveResolver<any, any, ContextType>;
   unset?: UnsetDirectiveResolver<any, any, ContextType>;
   set?: SetDirectiveResolver<any, any, ContextType>;
   inc?: IncDirectiveResolver<any, any, ContextType>;
   dec?: DecDirectiveResolver<any, any, ContextType>;
+  auth?: AuthDirectiveResolver<any, any, ContextType>;
 };
 
 
@@ -352,8 +390,8 @@ export type DirectiveResolvers<ContextType = any> = {
  * Use "DirectiveResolvers" root object instead. If you wish to get "IDirectiveResolvers", add "typesPrefix: I" to your config.
  */
 export type IDirectiveResolvers<ContextType = any> = DirectiveResolvers<ContextType>;
-import { Db, Collection, ObjectID } from 'mongodb'
-import { mapFilterToMongo, mapUpdateToMongo, paginateCursor } from '../src/ts-mongo-codegen'
+import { Db, Collection, ObjectId } from 'mongodb'
+import { mapFilterToMongo, mapUpdateToMongo, mapTextSearchToMongo, paginateCursor, ITextSearch } from '@elevatejs/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
@@ -371,17 +409,18 @@ export const getAuthorsCollection = (db: Db) => db.collection<Author>('authors')
 
 export const authorResolvers: AuthorResolvers<IAuthorContext> = { id: fromMongoId }
 
-export type IAuthorFilterArgs = { name?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; } }
+export type IAuthorFilterArgs = { name?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, OR?: { EQ?: Author; GT?: Author; GTE?: Author; IN?: Author[]; ALL?: Author[]; LT?: Author; LTE?: Author; NE?: Author; NIN?: Author[]; }[] }
 
 export type IAuthorFindArgs = { filter: IAuthorFilterArgs, pagination: Pagination, sort: Sort }
 
-export type IAuthorFindByIdArgs = { id: ObjectID }
+export type IAuthorFindByIdArgs = { id: ObjectId; filter?: any; }
 
-export type IAuthorsFindByIdsArgs = { ids: ObjectID[] }
+export type IAuthorsFindByIdsArgs = { ids: ObjectId[]; filter?: any; }
 
 export const authorQueryResolvers = {
   async findAuthors(_: any, { filter, pagination, sort }: IAuthorFindArgs, context: IAuthorContext) {
     const query = mapFilterToMongo(filter || {})
+    
     const total = () => context.authors.find(query).count()
     const data = () => paginateCursor(
       context.authors.find(query),
@@ -392,11 +431,11 @@ export const authorQueryResolvers = {
       data
     }
   },
-  async findAuthorById(_: any, { id }: IAuthorFindByIdArgs, context: IAuthorContext) {
-    return context.authors.findOne({ _id: id })
+  async findAuthorById(_: any, { id, filter }: IAuthorFindByIdArgs, context: IAuthorContext) {
+    return context.authors.findOne({ _id: id, ...filter })
   },
-  async findAuthorsByIds(_: any, { ids }: IAuthorsFindByIdsArgs, context: IAuthorContext) {
-    const authors = await context.authors.find({ _id: { $in: ids } }).toArray()
+  async findAuthorsByIds(_: any, { ids, filter }: IAuthorsFindByIdsArgs, context: IAuthorContext) {
+    const authors = await context.authors.find({ _id: { $in: ids }, ...filter }).toArray()
     const authorsById = keyBy(authors, fromMongoId)
     return ids.map(id => id.toHexString()).map(id => authorsById[id])
   },
@@ -416,13 +455,13 @@ export type IAuthorDecArgs = {  }
 
 export type IAuthorIncArgs = {  }
 
-export type IAuthorUpdateArgs = { id: ObjectID, filter: any, authorSet: IAuthorSetArgs }
+export type IAuthorUpdateArgs = { id: ObjectId, filter: any, authorSet: IAuthorSetArgs }
 
-export type IAuthorsUpdateManyArgs = { ids: ObjectID[], filter: any, authorSet: IAuthorSetArgs }
+export type IAuthorsUpdateManyArgs = { ids: ObjectId[], filter: any, authorSet: IAuthorSetArgs }
 
-export type IAuthorRemoveArgs = { id: ObjectID, filter: any }
+export type IAuthorRemoveArgs = { id: ObjectId, filter: any }
 
-export type IAuthorsRemoveManyArgs = { ids: ObjectID[], filter: any }
+export type IAuthorsRemoveManyArgs = { ids: ObjectId[], filter: any }
 
 export const authorMutationResolvers = {
   async insertAuthor(_: any, { author }: IAuthorInsertArgs, context: IAuthorContext) {
@@ -485,17 +524,18 @@ export const getBooksCollection = (db: Db) => db.collection<Book>('books')
 
 export const bookResolvers: BookResolvers<IBookContext> = { id: fromMongoId }
 
-export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, tags?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, category?: { EQ?: Category; GT?: Category; GTE?: Category; IN?: Category[]; ALL?: Category[]; LT?: Category; LTE?: Category; NE?: Category; NIN?: Category[]; } }
+export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, tags?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, category?: { EQ?: Category; GT?: Category; GTE?: Category; IN?: Category[]; ALL?: Category[]; LT?: Category; LTE?: Category; NE?: Category; NIN?: Category[]; }, OR?: { EQ?: Book; GT?: Book; GTE?: Book; IN?: Book[]; ALL?: Book[]; LT?: Book; LTE?: Book; NE?: Book; NIN?: Book[]; }[] }
 
 export type IBookFindArgs = { filter: IBookFilterArgs, pagination: Pagination, sort: Sort }
 
-export type IBookFindByIdArgs = { id: ObjectID }
+export type IBookFindByIdArgs = { id: ObjectId; filter?: any; }
 
-export type IBooksFindByIdsArgs = { ids: ObjectID[] }
+export type IBooksFindByIdsArgs = { ids: ObjectId[]; filter?: any; }
 
 export const bookQueryResolvers = {
   async findBooks(_: any, { filter, pagination, sort }: IBookFindArgs, context: IBookContext) {
     const query = mapFilterToMongo(filter || {})
+    
     const total = () => context.books.find(query).count()
     const data = () => paginateCursor(
       context.books.find(query),
@@ -506,11 +546,11 @@ export const bookQueryResolvers = {
       data
     }
   },
-  async findBookById(_: any, { id }: IBookFindByIdArgs, context: IBookContext) {
-    return context.books.findOne({ _id: id })
+  async findBookById(_: any, { id, filter }: IBookFindByIdArgs, context: IBookContext) {
+    return context.books.findOne({ _id: id, ...filter })
   },
-  async findBooksByIds(_: any, { ids }: IBooksFindByIdsArgs, context: IBookContext) {
-    const books = await context.books.find({ _id: { $in: ids } }).toArray()
+  async findBooksByIds(_: any, { ids, filter }: IBooksFindByIdsArgs, context: IBookContext) {
+    const books = await context.books.find({ _id: { $in: ids }, ...filter }).toArray()
     const booksById = keyBy(books, fromMongoId)
     return ids.map(id => id.toHexString()).map(id => booksById[id])
   },
@@ -530,13 +570,13 @@ export type IBookDecArgs = {  }
 
 export type IBookIncArgs = {  }
 
-export type IBookUpdateArgs = { id: ObjectID, filter: any, bookSet: IBookSetArgs }
+export type IBookUpdateArgs = { id: ObjectId, filter: any, bookSet: IBookSetArgs }
 
-export type IBooksUpdateManyArgs = { ids: ObjectID[], filter: any, bookSet: IBookSetArgs }
+export type IBooksUpdateManyArgs = { ids: ObjectId[], filter: any, bookSet: IBookSetArgs }
 
-export type IBookRemoveArgs = { id: ObjectID, filter: any }
+export type IBookRemoveArgs = { id: ObjectId, filter: any }
 
-export type IBooksRemoveManyArgs = { ids: ObjectID[], filter: any }
+export type IBooksRemoveManyArgs = { ids: ObjectId[], filter: any }
 
 export const bookMutationResolvers = {
   async insertBook(_: any, { book }: IBookInsertArgs, context: IBookContext) {

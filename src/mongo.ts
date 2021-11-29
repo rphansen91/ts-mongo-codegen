@@ -1,4 +1,4 @@
-import { ObjectID, MongoClient, Cursor, MongoClientOptions } from 'mongodb'
+import { ObjectID, ObjectId, MongoClient, MongoClientOptions, FindCursor } from 'mongodb'
 
 export interface IPagination {
   perPage?: number | null
@@ -31,7 +31,7 @@ const graphqlToMongoFilterMap = {
   SEARCH: '$search',
   REGEX: '$regex',
   OPTIONS: '$options',
-  OR: '$or'
+  OR: '$or',
 }
 
 const graphqlToMongoUpdateMap = {
@@ -52,8 +52,8 @@ let mongo: MongoClient
 let promise: Promise<MongoClient>
 
 export async function mongoConnect(uri: string, options?: MongoClientOptions) {
-  if (mongo && mongo.isConnected()) return mongo
-  promise = MongoClient.connect(uri, options)
+  if (mongo) return mongo
+  promise = new MongoClient(uri, options).connect()
   mongo = await promise
   return mongo
 }
@@ -71,13 +71,11 @@ export const mapUpdateToMongo = deepFieldTransform((key: string) => {
 })
 
 export function paginateCursor(
-  cursor: Cursor,
+  cursor: FindCursor,
   { pagination, sort }: { pagination?: IPagination | null; sort?: ISort | null }
 ) {
   if (sort && sort.field) {
-    cursor = cursor.sort({
-      [sort.field]: sort.order || 1,
-    })
+    cursor = cursor.sort(sort.field, sort.order === -1 ? 'desc' : 'asc')
   }
   if (pagination && pagination.perPage && pagination.page) {
     cursor = cursor.skip(Math.max(pagination.page - 1, 0) * pagination.perPage)
@@ -94,6 +92,7 @@ function deepFieldTransform(fn: (key: string) => string) {
     if (Array.isArray(value)) return value.map((v) => t(v))
     if (typeof value !== 'object') return value
     if (value instanceof Date) return value
+    if (value instanceof ObjectId) return value
     if (value instanceof ObjectID) return value
     return Object.keys(value || {}).reduce((acc: any, key) => {
       acc[fn(key)] = t(value[key])
