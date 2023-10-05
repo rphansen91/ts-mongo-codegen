@@ -1,17 +1,17 @@
 import {
   plugin,
-  addToSchema,
   mapFilterToMongo,
   mapUpdateToMongo,
   graphqlTypeObjectId,
   graphqlTypeDate
 } from '../src/ts-mongo-codegen'
+import { mongoTypeDefs } from '../src/mongo-types'
 import { print, buildSchema, astFromValue, ValueNode, printSchema } from 'graphql'
 import { ObjectId } from 'mongodb'
 import { makeAugmentedSchema } from '../src/mongo-augment'
 
 const bookSchema = buildSchema(`
-${addToSchema.loc?.source?.body}
+${mongoTypeDefs.loc?.source?.body}
 enum Category {
   drama
   comedy
@@ -45,7 +45,7 @@ type Mutation {
 }
 `)
 const schema = buildSchema(`
-  ${addToSchema.loc?.source?.body}
+  ${mongoTypeDefs.loc?.source?.body}
 
   type User @collection(name: "users", crud: true) {
     id: ObjectId

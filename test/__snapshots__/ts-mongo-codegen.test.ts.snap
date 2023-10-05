@@ -83,7 +83,10 @@ export type IBooksRemoveManyArgs = { ids: ObjectId[], filter: any }
 export const bookMutationResolvers = {
   async insertBook(_: any, { book }: IBookInsertArgs, context: IBookContext) {
     const response = await context.books.insertOne(book)
-    return response.ops[0]
+    return {
+      _id: response.insertedId,
+      ...book
+    }
   },
   async insertManyBooks(_: any, { books }: IBooksInsertManyArgs, context: IBookContext) {
     const response = await context.books.insertMany(books)
@@ -95,12 +98,12 @@ export const bookMutationResolvers = {
     return cursor.toArray()
   },
   async updateBook(_: any, { id, filter, bookSet }: IBookUpdateArgs, context: IBookContext) {
-      const { value } = await context.books.findOneAndUpdate({ 
+      const value = await context.books.findOneAndUpdate({ 
         _id: id, ...filter
       }, {
         $set: bookSet
       }, {
-        returnOriginal: false
+        returnDocument: 'after'
       })
       return value || null
   },
@@ -120,7 +123,7 @@ export const bookMutationResolvers = {
     return ids.map(id => id.toHexString()).map(id => booksById[id])
   },
   async removeBook(_: any, { id, filter }: IBookRemoveArgs, context: IBookContext) {
-    const { value } = await context.books.findOneAndDelete({ _id: id, ...filter })
+    const value = await context.books.findOneAndDelete({ _id: id, ...filter })
     return value || null
   },
   async removeManyBooks(_: any, { ids, filter }: IBooksRemoveManyArgs, context: IBookContext) {
@@ -326,8 +329,7 @@ input BookSet {
   title: String
   author: String
   category: Category
-}
-"
+}"
 `;
 
 exports[`TS Mongo Codegen Should build crud operations: usersAugmentedSchema 1`] = `
@@ -491,8 +493,7 @@ input UserUnset {
 input UserSet {
   email: String
   username: String
-}
-"
+}"
 `;
 
 exports[`TS Mongo Codegen Should build user collection types: collectionTypes 1`] = `
@@ -578,7 +579,10 @@ export type IUsersRemoveManyArgs = { ids: ObjectId[], filter: any }
 export const userMutationResolvers = {
   async insertUser(_: any, { user }: IUserInsertArgs, context: IUserContext) {
     const response = await context.users.insertOne(user)
-    return response.ops[0]
+    return {
+      _id: response.insertedId,
+      ...user
+    }
   },
   async insertManyUsers(_: any, { users }: IUsersInsertManyArgs, context: IUserContext) {
     const response = await context.users.insertMany(users)
@@ -590,12 +594,12 @@ export const userMutationResolvers = {
     return cursor.toArray()
   },
   async updateUser(_: any, { id, filter, userSet }: IUserUpdateArgs, context: IUserContext) {
-      const { value } = await context.users.findOneAndUpdate({ 
+      const value = await context.users.findOneAndUpdate({ 
         _id: id, ...filter
       }, {
         $set: userSet
       }, {
-        returnOriginal: false
+        returnDocument: 'after'
       })
       return value || null
   },
@@ -615,7 +619,7 @@ export const userMutationResolvers = {
     return ids.map(id => id.toHexString()).map(id => usersById[id])
   },
   async removeUser(_: any, { id, filter }: IUserRemoveArgs, context: IUserContext) {
-    const { value } = await context.users.findOneAndDelete({ _id: id, ...filter })
+    const value = await context.users.findOneAndDelete({ _id: id, ...filter })
     return value || null
   },
   async removeManyUsers(_: any, { ids, filter }: IUsersRemoveManyArgs, context: IUserContext) {
