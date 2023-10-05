@@ -1,4 +1,4 @@
-import { ObjectID, ObjectId, MongoClient, MongoClientOptions, FindCursor } from 'mongodb'
+import { ObjectId, MongoClient, MongoClientOptions, FindCursor } from 'mongodb'
 
 export interface IPagination {
   perPage?: number | null
@@ -93,7 +93,6 @@ function deepFieldTransform(fn: (key: string) => string) {
     if (typeof value !== 'object') return value
     if (value instanceof Date) return value
     if (value instanceof ObjectId) return value
-    if (value instanceof ObjectID) return value
     return Object.keys(value || {}).reduce((acc: any, key) => {
       acc[fn(key)] = t(value[key])
       return acc

@@ -1,162 +1,153 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
+export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string;
-  String: string;
-  Boolean: boolean;
-  Int: number;
-  Float: number;
-  Date: any;
-  ObjectId: any;
-};
-
-
-
-
-
-
-
-
-
-
-
-export type Pagination = {
-  perPage?: Maybe<Scalars['Int']>;
-  page?: Maybe<Scalars['Int']>;
-};
-
-export type Sort = {
-  field?: Maybe<Scalars['String']>;
-  order?: Maybe<Scalars['Int']>;
-};
-
-
-
-export type BooleanFilter = {
-  EQ?: Maybe<Scalars['Boolean']>;
-  GT?: Maybe<Scalars['Boolean']>;
-  GTE?: Maybe<Scalars['Boolean']>;
-  IN?: Maybe<Array<Maybe<Scalars['Boolean']>>>;
-  ALL?: Maybe<Array<Maybe<Scalars['Boolean']>>>;
-  LT?: Maybe<Scalars['Boolean']>;
-  LTE?: Maybe<Scalars['Boolean']>;
-  NE?: Maybe<Scalars['Boolean']>;
-  NIN?: Maybe<Array<Maybe<Scalars['Boolean']>>>;
-};
-
-export type IntFilter = {
-  EQ?: Maybe<Scalars['Int']>;
-  GT?: Maybe<Scalars['Int']>;
-  GTE?: Maybe<Scalars['Int']>;
-  IN?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  ALL?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  LT?: Maybe<Scalars['Int']>;
-  LTE?: Maybe<Scalars['Int']>;
-  NE?: Maybe<Scalars['Int']>;
-  NIN?: Maybe<Array<Maybe<Scalars['Int']>>>;
-};
-
-export type FloatFilter = {
-  EQ?: Maybe<Scalars['Float']>;
-  GT?: Maybe<Scalars['Float']>;
-  GTE?: Maybe<Scalars['Float']>;
-  IN?: Maybe<Array<Maybe<Scalars['Float']>>>;
-  ALL?: Maybe<Array<Maybe<Scalars['Float']>>>;
-  LT?: Maybe<Scalars['Float']>;
-  LTE?: Maybe<Scalars['Float']>;
-  NE?: Maybe<Scalars['Float']>;
-  NIN?: Maybe<Array<Maybe<Scalars['Float']>>>;
-};
-
-export type StringFilter = {
-  EQ?: Maybe<Scalars['String']>;
-  GT?: Maybe<Scalars['String']>;
-  GTE?: Maybe<Scalars['String']>;
-  IN?: Maybe<Array<Maybe<Scalars['String']>>>;
-  ALL?: Maybe<Array<Maybe<Scalars['String']>>>;
-  LT?: Maybe<Scalars['String']>;
-  LTE?: Maybe<Scalars['String']>;
-  NE?: Maybe<Scalars['String']>;
-  NIN?: Maybe<Array<Maybe<Scalars['String']>>>;
-  REGEX?: Maybe<Scalars['String']>;
-  OPTIONS?: Maybe<Scalars['String']>;
-};
-
-export type DateFilter = {
-  EQ?: Maybe<Scalars['Date']>;
-  GT?: Maybe<Scalars['Date']>;
-  GTE?: Maybe<Scalars['Date']>;
-  IN?: Maybe<Array<Maybe<Scalars['Date']>>>;
-  ALL?: Maybe<Array<Maybe<Scalars['Date']>>>;
-  LT?: Maybe<Scalars['Date']>;
-  LTE?: Maybe<Scalars['Date']>;
-  NE?: Maybe<Scalars['Date']>;
-  NIN?: Maybe<Array<Maybe<Scalars['Date']>>>;
-};
-
-export type ObjectIdFilter = {
-  EQ?: Maybe<Scalars['ObjectId']>;
-  GT?: Maybe<Scalars['ObjectId']>;
-  GTE?: Maybe<Scalars['ObjectId']>;
-  IN?: Maybe<Array<Maybe<Scalars['ObjectId']>>>;
-  ALL?: Maybe<Array<Maybe<Scalars['ObjectId']>>>;
-  LT?: Maybe<Scalars['ObjectId']>;
-  LTE?: Maybe<Scalars['ObjectId']>;
-  NE?: Maybe<Scalars['ObjectId']>;
-  NIN?: Maybe<Array<Maybe<Scalars['ObjectId']>>>;
-};
-
-export type TextSearch = {
-  search?: Maybe<Scalars['String']>;
-  language?: Maybe<Scalars['String']>;
-  caseSensitive?: Maybe<Scalars['Boolean']>;
-  diacriticSensitive?: Maybe<Scalars['Boolean']>;
-};
-
-export enum Category {
-  Drama = 'drama',
-  Comedy = 'comedy'
-}
-
-export type CategoryFilter = {
-  EQ?: Maybe<Category>;
-  GT?: Maybe<Category>;
-  GTE?: Maybe<Category>;
-  IN?: Maybe<Array<Maybe<Category>>>;
-  ALL?: Maybe<Array<Maybe<Category>>>;
-  LT?: Maybe<Category>;
-  LTE?: Maybe<Category>;
-  NE?: Maybe<Category>;
-  NIN?: Maybe<Array<Maybe<Category>>>;
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  Date: { input: any; output: any; }
+  ObjectId: { input: any; output: any; }
 };
 
 export type Author = {
   __typename?: 'Author';
-  id?: Maybe<Scalars['ObjectId']>;
-  name?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['ObjectId']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
 };
 
 export type Book = {
   __typename?: 'Book';
-  id?: Maybe<Scalars['ObjectId']>;
-  title?: Maybe<Scalars['String']>;
-  author?: Maybe<Scalars['String']>;
-  tags?: Maybe<Array<Maybe<Scalars['String']>>>;
+  author?: Maybe<Scalars['String']['output']>;
   category?: Maybe<Category>;
+  id?: Maybe<Scalars['ObjectId']['output']>;
+  tags?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  title?: Maybe<Scalars['String']['output']>;
 };
 
-export type Query = {
-  __typename?: 'Query';
-  root?: Maybe<Scalars['String']>;
+export type BooleanFilter = {
+  ALL?: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
+  EQ?: InputMaybe<Scalars['Boolean']['input']>;
+  GT?: InputMaybe<Scalars['Boolean']['input']>;
+  GTE?: InputMaybe<Scalars['Boolean']['input']>;
+  IN?: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
+  LT?: InputMaybe<Scalars['Boolean']['input']>;
+  LTE?: InputMaybe<Scalars['Boolean']['input']>;
+  NE?: InputMaybe<Scalars['Boolean']['input']>;
+  NIN?: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
+};
+
+export enum Category {
+  Comedy = 'comedy',
+  Drama = 'drama'
+}
+
+export type CategoryFilter = {
+  ALL?: InputMaybe<Array<InputMaybe<Category>>>;
+  EQ?: InputMaybe<Category>;
+  GT?: InputMaybe<Category>;
+  GTE?: InputMaybe<Category>;
+  IN?: InputMaybe<Array<InputMaybe<Category>>>;
+  LT?: InputMaybe<Category>;
+  LTE?: InputMaybe<Category>;
+  NE?: InputMaybe<Category>;
+  NIN?: InputMaybe<Array<InputMaybe<Category>>>;
+};
+
+export type DateFilter = {
+  ALL?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
+  EQ?: InputMaybe<Scalars['Date']['input']>;
+  GT?: InputMaybe<Scalars['Date']['input']>;
+  GTE?: InputMaybe<Scalars['Date']['input']>;
+  IN?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
+  LT?: InputMaybe<Scalars['Date']['input']>;
+  LTE?: InputMaybe<Scalars['Date']['input']>;
+  NE?: InputMaybe<Scalars['Date']['input']>;
+  NIN?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
+};
+
+export type FloatFilter = {
+  ALL?: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
+  EQ?: InputMaybe<Scalars['Float']['input']>;
+  GT?: InputMaybe<Scalars['Float']['input']>;
+  GTE?: InputMaybe<Scalars['Float']['input']>;
+  IN?: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
+  LT?: InputMaybe<Scalars['Float']['input']>;
+  LTE?: InputMaybe<Scalars['Float']['input']>;
+  NE?: InputMaybe<Scalars['Float']['input']>;
+  NIN?: InputMaybe<Array<InputMaybe<Scalars['Float']['input']>>>;
+};
+
+export type IntFilter = {
+  ALL?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  EQ?: InputMaybe<Scalars['Int']['input']>;
+  GT?: InputMaybe<Scalars['Int']['input']>;
+  GTE?: InputMaybe<Scalars['Int']['input']>;
+  IN?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  LT?: InputMaybe<Scalars['Int']['input']>;
+  LTE?: InputMaybe<Scalars['Int']['input']>;
+  NE?: InputMaybe<Scalars['Int']['input']>;
+  NIN?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  root?: Maybe<Scalars['String']>;
+  root?: Maybe<Scalars['String']['output']>;
+};
+
+export type ObjectIdFilter = {
+  ALL?: InputMaybe<Array<InputMaybe<Scalars['ObjectId']['input']>>>;
+  EQ?: InputMaybe<Scalars['ObjectId']['input']>;
+  GT?: InputMaybe<Scalars['ObjectId']['input']>;
+  GTE?: InputMaybe<Scalars['ObjectId']['input']>;
+  IN?: InputMaybe<Array<InputMaybe<Scalars['ObjectId']['input']>>>;
+  LT?: InputMaybe<Scalars['ObjectId']['input']>;
+  LTE?: InputMaybe<Scalars['ObjectId']['input']>;
+  NE?: InputMaybe<Scalars['ObjectId']['input']>;
+  NIN?: InputMaybe<Array<InputMaybe<Scalars['ObjectId']['input']>>>;
+};
+
+export type Pagination = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  perPage?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type Query = {
+  __typename?: 'Query';
+  root?: Maybe<Scalars['String']['output']>;
+};
+
+export type Sort = {
+  field?: InputMaybe<Scalars['String']['input']>;
+  order?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type StringFilter = {
+  ALL?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  EQ?: InputMaybe<Scalars['String']['input']>;
+  GT?: InputMaybe<Scalars['String']['input']>;
+  GTE?: InputMaybe<Scalars['String']['input']>;
+  IN?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  LT?: InputMaybe<Scalars['String']['input']>;
+  LTE?: InputMaybe<Scalars['String']['input']>;
+  NE?: InputMaybe<Scalars['String']['input']>;
+  NIN?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  OPTIONS?: InputMaybe<Scalars['String']['input']>;
+  REGEX?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type TextSearch = {
+  caseSensitive?: InputMaybe<Scalars['Boolean']['input']>;
+  diacriticSensitive?: InputMaybe<Scalars['Boolean']['input']>;
+  language?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -164,19 +155,10 @@ export type Mutation = {
 export type ResolverTypeWrapper<T> = Promise<T> | T;
 
 
-export type LegacyStitchingResolver<TResult, TParent, TContext, TArgs> = {
-  fragment: string;
+export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
 };
-
-export type NewStitchingResolver<TResult, TParent, TContext, TArgs> = {
-  selectionSet: string;
-  resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
-};
-export type StitchingResolver<TResult, TParent, TContext, TArgs> = LegacyStitchingResolver<TResult, TParent, TContext, TArgs> | NewStitchingResolver<TResult, TParent, TContext, TArgs>;
-export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> =
-  | ResolverFn<TResult, TParent, TContext, TArgs>
-  | StitchingResolver<TResult, TParent, TContext, TArgs>;
+export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
 
 export type ResolverFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
@@ -190,7 +172,7 @@ export type SubscriptionSubscribeFn<TResult, TParent, TContext, TArgs> = (
   args: TArgs,
   context: TContext,
   info: GraphQLResolveInfo
-) => AsyncIterator<TResult> | Promise<AsyncIterator<TResult>>;
+) => AsyncIterable<TResult> | Promise<AsyncIterable<TResult>>;
 
 export type SubscriptionResolveFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
@@ -235,103 +217,99 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+
+
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  Pagination: Pagination;
-  Int: ResolverTypeWrapper<Scalars['Int']>;
-  Sort: Sort;
-  String: ResolverTypeWrapper<Scalars['String']>;
-  Date: ResolverTypeWrapper<Scalars['Date']>;
-  ObjectId: ResolverTypeWrapper<Scalars['ObjectId']>;
-  BooleanFilter: BooleanFilter;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  IntFilter: IntFilter;
-  FloatFilter: FloatFilter;
-  Float: ResolverTypeWrapper<Scalars['Float']>;
-  StringFilter: StringFilter;
-  DateFilter: DateFilter;
-  ObjectIdFilter: ObjectIdFilter;
-  TextSearch: TextSearch;
-  Category: Category;
-  CategoryFilter: CategoryFilter;
   Author: ResolverTypeWrapper<Author>;
   Book: ResolverTypeWrapper<Book>;
-  Query: ResolverTypeWrapper<{}>;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  BooleanFilter: BooleanFilter;
+  Category: Category;
+  CategoryFilter: CategoryFilter;
+  Date: ResolverTypeWrapper<Scalars['Date']['output']>;
+  DateFilter: DateFilter;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
+  FloatFilter: FloatFilter;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  IntFilter: IntFilter;
   Mutation: ResolverTypeWrapper<{}>;
+  ObjectId: ResolverTypeWrapper<Scalars['ObjectId']['output']>;
+  ObjectIdFilter: ObjectIdFilter;
+  Pagination: Pagination;
+  Query: ResolverTypeWrapper<{}>;
+  Sort: Sort;
+  String: ResolverTypeWrapper<Scalars['String']['output']>;
+  StringFilter: StringFilter;
+  TextSearch: TextSearch;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  Pagination: Pagination;
-  Int: Scalars['Int'];
-  Sort: Sort;
-  String: Scalars['String'];
-  Date: Scalars['Date'];
-  ObjectId: Scalars['ObjectId'];
-  BooleanFilter: BooleanFilter;
-  Boolean: Scalars['Boolean'];
-  IntFilter: IntFilter;
-  FloatFilter: FloatFilter;
-  Float: Scalars['Float'];
-  StringFilter: StringFilter;
-  DateFilter: DateFilter;
-  ObjectIdFilter: ObjectIdFilter;
-  TextSearch: TextSearch;
-  CategoryFilter: CategoryFilter;
   Author: Author;
   Book: Book;
-  Query: {};
+  Boolean: Scalars['Boolean']['output'];
+  BooleanFilter: BooleanFilter;
+  CategoryFilter: CategoryFilter;
+  Date: Scalars['Date']['output'];
+  DateFilter: DateFilter;
+  Float: Scalars['Float']['output'];
+  FloatFilter: FloatFilter;
+  Int: Scalars['Int']['output'];
+  IntFilter: IntFilter;
   Mutation: {};
+  ObjectId: Scalars['ObjectId']['output'];
+  ObjectIdFilter: ObjectIdFilter;
+  Pagination: Pagination;
+  Query: {};
+  Sort: Sort;
+  String: Scalars['String']['output'];
+  StringFilter: StringFilter;
+  TextSearch: TextSearch;
 };
 
-export type CollectionDirectiveArgs = {   name: Scalars['String'];
-  crud?: Maybe<Scalars['Boolean']>; };
-
-export type CollectionDirectiveResolver<Result, Parent, ContextType = any, Args = CollectionDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type FilterDirectiveArgs = {  };
-
-export type FilterDirectiveResolver<Result, Parent, ContextType = any, Args = FilterDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type TextsearchDirectiveArgs = {  };
-
-export type TextsearchDirectiveResolver<Result, Parent, ContextType = any, Args = TextsearchDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type InsertDirectiveArgs = {  };
-
-export type InsertDirectiveResolver<Result, Parent, ContextType = any, Args = InsertDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type UpdateDirectiveArgs = {  };
-
-export type UpdateDirectiveResolver<Result, Parent, ContextType = any, Args = UpdateDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type UnsetDirectiveArgs = {  };
-
-export type UnsetDirectiveResolver<Result, Parent, ContextType = any, Args = UnsetDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type SetDirectiveArgs = {  };
-
-export type SetDirectiveResolver<Result, Parent, ContextType = any, Args = SetDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type IncDirectiveArgs = {  };
-
-export type IncDirectiveResolver<Result, Parent, ContextType = any, Args = IncDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type DecDirectiveArgs = {  };
-
-export type DecDirectiveResolver<Result, Parent, ContextType = any, Args = DecDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type AuthDirectiveArgs = {  };
+export type AuthDirectiveArgs = { };
 
 export type AuthDirectiveResolver<Result, Parent, ContextType = any, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
-  name: 'Date';
-}
+export type CollectionDirectiveArgs = {
+  crud?: Maybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
 
-export interface ObjectIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['ObjectId'], any> {
-  name: 'ObjectId';
-}
+export type CollectionDirectiveResolver<Result, Parent, ContextType = any, Args = CollectionDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type DecDirectiveArgs = { };
+
+export type DecDirectiveResolver<Result, Parent, ContextType = any, Args = DecDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type FilterDirectiveArgs = { };
+
+export type FilterDirectiveResolver<Result, Parent, ContextType = any, Args = FilterDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type IncDirectiveArgs = { };
+
+export type IncDirectiveResolver<Result, Parent, ContextType = any, Args = IncDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type InsertDirectiveArgs = { };
+
+export type InsertDirectiveResolver<Result, Parent, ContextType = any, Args = InsertDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type SetDirectiveArgs = { };
+
+export type SetDirectiveResolver<Result, Parent, ContextType = any, Args = SetDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type TextsearchDirectiveArgs = { };
+
+export type TextsearchDirectiveResolver<Result, Parent, ContextType = any, Args = TextsearchDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type UnsetDirectiveArgs = { };
+
+export type UnsetDirectiveResolver<Result, Parent, ContextType = any, Args = UnsetDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type UpdateDirectiveArgs = { };
+
+export type UpdateDirectiveResolver<Result, Parent, ContextType = any, Args = UpdateDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type AuthorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Author'] = ResolversParentTypes['Author']> = {
   id?: Resolver<Maybe<ResolversTypes['ObjectId']>, ParentType, ContextType>;
@@ -340,58 +318,54 @@ export type AuthorResolvers<ContextType = any, ParentType extends ResolversParen
 };
 
 export type BookResolvers<ContextType = any, ParentType extends ResolversParentTypes['Book'] = ResolversParentTypes['Book']> = {
-  id?: Resolver<Maybe<ResolversTypes['ObjectId']>, ParentType, ContextType>;
-  title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  tags?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
   category?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ObjectId']>, ParentType, ContextType>;
+  tags?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  root?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-};
+export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
+  name: 'Date';
+}
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   root?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
+export interface ObjectIdScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['ObjectId'], any> {
+  name: 'ObjectId';
+}
+
+export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  root?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = any> = {
-  Date?: GraphQLScalarType;
-  ObjectId?: GraphQLScalarType;
   Author?: AuthorResolvers<ContextType>;
   Book?: BookResolvers<ContextType>;
-  Query?: QueryResolvers<ContextType>;
+  Date?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
+  ObjectId?: GraphQLScalarType;
+  Query?: QueryResolvers<ContextType>;
 };
 
-
-/**
- * @deprecated
- * Use "Resolvers" root object instead. If you wish to get "IResolvers", add "typesPrefix: I" to your config.
- */
-export type IResolvers<ContextType = any> = Resolvers<ContextType>;
 export type DirectiveResolvers<ContextType = any> = {
-  collection?: CollectionDirectiveResolver<any, any, ContextType>;
-  filter?: FilterDirectiveResolver<any, any, ContextType>;
-  textsearch?: TextsearchDirectiveResolver<any, any, ContextType>;
-  insert?: InsertDirectiveResolver<any, any, ContextType>;
-  update?: UpdateDirectiveResolver<any, any, ContextType>;
-  unset?: UnsetDirectiveResolver<any, any, ContextType>;
-  set?: SetDirectiveResolver<any, any, ContextType>;
-  inc?: IncDirectiveResolver<any, any, ContextType>;
-  dec?: DecDirectiveResolver<any, any, ContextType>;
   auth?: AuthDirectiveResolver<any, any, ContextType>;
+  collection?: CollectionDirectiveResolver<any, any, ContextType>;
+  dec?: DecDirectiveResolver<any, any, ContextType>;
+  filter?: FilterDirectiveResolver<any, any, ContextType>;
+  inc?: IncDirectiveResolver<any, any, ContextType>;
+  insert?: InsertDirectiveResolver<any, any, ContextType>;
+  set?: SetDirectiveResolver<any, any, ContextType>;
+  textsearch?: TextsearchDirectiveResolver<any, any, ContextType>;
+  unset?: UnsetDirectiveResolver<any, any, ContextType>;
+  update?: UpdateDirectiveResolver<any, any, ContextType>;
 };
 
-
-/**
- * @deprecated
- * Use "DirectiveResolvers" root object instead. If you wish to get "IDirectiveResolvers", add "typesPrefix: I" to your config.
- */
-export type IDirectiveResolvers<ContextType = any> = DirectiveResolvers<ContextType>;
 import { Db, Collection, ObjectId } from 'mongodb'
-import { mapFilterToMongo, mapUpdateToMongo, mapTextSearchToMongo, paginateCursor, ITextSearch } from '@elevatejs/ts-mongo-codegen'
+import { mapFilterToMongo, mapUpdateToMongo, mapTextSearchToMongo, paginateCursor, ITextSearch } from '../src/ts-mongo-codegen'
 import values from 'lodash/values'
 import keyBy from 'lodash/keyBy'
 
@@ -466,7 +440,10 @@ export type IAuthorsRemoveManyArgs = { ids: ObjectId[], filter: any }
 export const authorMutationResolvers = {
   async insertAuthor(_: any, { author }: IAuthorInsertArgs, context: IAuthorContext) {
     const response = await context.authors.insertOne(author)
-    return response.ops[0]
+    return {
+      _id: response.insertedId,
+      ...author
+    }
   },
   async insertManyAuthors(_: any, { authors }: IAuthorsInsertManyArgs, context: IAuthorContext) {
     const response = await context.authors.insertMany(authors)
@@ -478,12 +455,12 @@ export const authorMutationResolvers = {
     return cursor.toArray()
   },
   async updateAuthor(_: any, { id, filter, authorSet }: IAuthorUpdateArgs, context: IAuthorContext) {
-      const { value } = await context.authors.findOneAndUpdate({ 
+      const value = await context.authors.findOneAndUpdate({ 
         _id: id, ...filter
       }, {
         $set: authorSet
       }, {
-        returnOriginal: false
+        returnDocument: 'after'
       })
       return value || null
   },
@@ -503,7 +480,7 @@ export const authorMutationResolvers = {
     return ids.map(id => id.toHexString()).map(id => authorsById[id])
   },
   async removeAuthor(_: any, { id, filter }: IAuthorRemoveArgs, context: IAuthorContext) {
-    const { value } = await context.authors.findOneAndDelete({ _id: id, ...filter })
+    const value = await context.authors.findOneAndDelete({ _id: id, ...filter })
     return value || null
   },
   async removeManyAuthors(_: any, { ids, filter }: IAuthorsRemoveManyArgs, context: IAuthorContext) {
@@ -526,16 +503,16 @@ export const bookResolvers: BookResolvers<IBookContext> = { id: fromMongoId }
 
 export type IBookFilterArgs = { title?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, author?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, tags?: { EQ?: string; GT?: string; GTE?: string; IN?: string[]; ALL?: string[]; LT?: string; LTE?: string; NE?: string; NIN?: string[]; }, category?: { EQ?: Category; GT?: Category; GTE?: Category; IN?: Category[]; ALL?: Category[]; LT?: Category; LTE?: Category; NE?: Category; NIN?: Category[]; }, OR?: { EQ?: Book; GT?: Book; GTE?: Book; IN?: Book[]; ALL?: Book[]; LT?: Book; LTE?: Book; NE?: Book; NIN?: Book[]; }[] }
 
-export type IBookFindArgs = { filter: IBookFilterArgs, pagination: Pagination, sort: Sort }
+export type IBookFindArgs = { filter: IBookFilterArgs, textsearch: ITextSearch, pagination: Pagination, sort: Sort }
 
 export type IBookFindByIdArgs = { id: ObjectId; filter?: any; }
 
 export type IBooksFindByIdsArgs = { ids: ObjectId[]; filter?: any; }
 
 export const bookQueryResolvers = {
-  async findBooks(_: any, { filter, pagination, sort }: IBookFindArgs, context: IBookContext) {
+  async findBooks(_: any, { filter, textsearch, pagination, sort }: IBookFindArgs, context: IBookContext) {
     const query = mapFilterToMongo(filter || {})
-    
+    if (textsearch) query.$text = mapTextSearchToMongo(textsearch)
     const total = () => context.books.find(query).count()
     const data = () => paginateCursor(
       context.books.find(query),
@@ -555,6 +532,12 @@ export const bookQueryResolvers = {
     return ids.map(id => id.toHexString()).map(id => booksById[id])
   },
 }
+
+export const ensureBooksSearchIndex = async function (context: IBookContext) {
+    return context.books.createIndex({
+      title: 'text', author: 'text'
+    })
+  }
 
 export type IBookInsert = { title?: string, author?: string, tags?: string[], category?: Category }
 
@@ -581,7 +564,10 @@ export type IBooksRemoveManyArgs = { ids: ObjectId[], filter: any }
 export const bookMutationResolvers = {
   async insertBook(_: any, { book }: IBookInsertArgs, context: IBookContext) {
     const response = await context.books.insertOne(book)
-    return response.ops[0]
+    return {
+      _id: response.insertedId,
+      ...book
+    }
   },
   async insertManyBooks(_: any, { books }: IBooksInsertManyArgs, context: IBookContext) {
     const response = await context.books.insertMany(books)
@@ -593,12 +579,12 @@ export const bookMutationResolvers = {
     return cursor.toArray()
   },
   async updateBook(_: any, { id, filter, bookSet }: IBookUpdateArgs, context: IBookContext) {
-      const { value } = await context.books.findOneAndUpdate({ 
+      const value = await context.books.findOneAndUpdate({ 
         _id: id, ...filter
       }, {
         $set: bookSet
       }, {
-        returnOriginal: false
+        returnDocument: 'after'
       })
       return value || null
   },
@@ -618,7 +604,7 @@ export const bookMutationResolvers = {
     return ids.map(id => id.toHexString()).map(id => booksById[id])
   },
   async removeBook(_: any, { id, filter }: IBookRemoveArgs, context: IBookContext) {
-    const { value } = await context.books.findOneAndDelete({ _id: id, ...filter })
+    const value = await context.books.findOneAndDelete({ _id: id, ...filter })
     return value || null
   },
   async removeManyBooks(_: any, { ids, filter }: IBooksRemoveManyArgs, context: IBookContext) {
@@ -630,6 +616,7 @@ export const bookMutationResolvers = {
 }
 
 export const bookCrudResolvers = { Query: bookQueryResolvers, Mutation: bookMutationResolvers, Book: bookResolvers }
+export const crudResolvers = [authorCrudResolvers, bookCrudResolvers]
 
 export function mongoCollectionFactory (db: Db) {
   const authors = getAuthorsCollection(db)

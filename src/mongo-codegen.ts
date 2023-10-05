@@ -1,4 +1,3 @@
-import { mongoTypeDefs } from './mongo-types'
 import { PluginFunction } from '@graphql-codegen/plugin-helpers'
 import {
   findDirective,
@@ -14,8 +13,6 @@ import {
 import capitalize from 'lodash/capitalize'
 import camelCase from 'lodash/camelCase'
 import values from 'lodash/values'
-
-export const addToSchema = mongoTypeDefs
 
 export type Config = {
   name: 'string'
@@ -264,7 +261,10 @@ function generateMutationResolvers(
   const insert = mongoTypes.insertType
     ? `  async insert${typeName}(_: any, { ${camelTypeName} }: ${insertArgsType.name}, context: ${contextType}) {
     const response = await context.${collectionName}.insertOne(${camelTypeName})
-    return response.ops[0]
+    return {
+      _id: response.insertedId,
+      ...${camelTypeName}
+    }
   },`
     : ''
   const insertMany = mongoTypes.insertType
@@ -335,12 +335,12 @@ function generateMutationResolvers(
     ? `  async update${typeName}(_: any, { id, filter, ${updateGraphqlArgs.join(', ')} }: ${
         updateArgsType.name
       }, context: ${contextType}) {
-      const { value } = await context.${collectionName}.findOneAndUpdate({ 
+      const value = await context.${collectionName}.findOneAndUpdate({ 
         _id: id, ...filter
       }, {
         ${updateMongoArgs.join(', ')}
       }, {
-        returnOriginal: false
+        returnDocument: 'after'
       })
       return value || null
   },`
@@ -376,7 +376,7 @@ function generateMutationResolvers(
     'type'
   )
   const remove = `  async remove${typeName}(_: any, { id, filter }: ${removeByIdArgsType.name}, context: ${contextType}) {
-    const { value } = await context.${collectionName}.findOneAndDelete({ _id: id, ...filter })
+    const value = await context.${collectionName}.findOneAndDelete({ _id: id, ...filter })
     return value || null
   },`
   const removeMany = `  async removeMany${pluralize(typeName)}(_: any, { ids, filter }: ${

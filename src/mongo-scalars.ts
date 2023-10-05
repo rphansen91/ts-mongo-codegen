@@ -5,10 +5,10 @@ export const graphqlTypeObjectId = new GraphQLScalarType({
   name: 'ObjectId',
   description: 'Mongo Object Id',
   parseValue(value) {
-    return new ObjectId(value)
+    return new ObjectId(value as string)
   },
   serialize(value) {
-    return value.toString() // value sent to the client
+    return (value as string).toString() // value sent to the client
   },
   parseLiteral(ast) {
     if (ast.kind === Kind.STRING) {
@@ -23,10 +23,10 @@ export const graphqlTypeDate = new GraphQLScalarType({
   description: 'Date custom scalar type',
   parseValue(value) {
     if (!value) return null
-    return new Date(value) // value from the client
+    return new Date(value as string) // value from the client
   },
   serialize(value) {
-    if (value && value.toISOString) return value.toISOString()
+    if (value instanceof Date) return value.toISOString()
     if (value && value.toString) return value.toString()
     return null // value sent to the client
   },

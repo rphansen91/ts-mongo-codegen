@@ -6,8 +6,8 @@ makeAugmentedSchema(
   buildASTSchema(gql`
     type Book @collection(name: "books") {
       id: ObjectId
-      title: String @insert @set @unset @filter
-      author: String @insert @set @unset @filter
+      title: String @insert @set @unset @filter @textsearch
+      author: String @insert @set @unset @filter @textsearch
       tags: [String] @insert @set @filter
     }
   `)

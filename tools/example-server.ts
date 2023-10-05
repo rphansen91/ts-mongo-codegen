@@ -1,7 +1,6 @@
 import { ApolloServer } from 'apollo-server'
 import { buildSchema, defaultFieldResolver, GraphQLSchema } from 'graphql'
-import { mergeSchemas } from '@graphql-tools/merge'
-import { makeExecutableSchema } from '@graphql-tools/schema'
+import { mergeSchemas, makeExecutableSchema } from '@graphql-tools/schema'
 import { mongoConnect } from '../src/mongo'
 import { mongoTypeDefs } from '../src/mongo-types'
 import { graphqlTypeObjectId, graphqlTypeDate } from '../src/mongo-scalars'
@@ -23,7 +22,8 @@ export const authDirectiveTransformer = (schema: GraphQLSchema) =>
   mapSchema(schema, {
     [MapperKind.OBJECT_FIELD]: (config) => {
       const directives = getDirectives(schema, config)
-      if (directives['auth']) {
+      const authDirective = directives.find(v => v.name === 'auth')
+      if (authDirective) {
         const { resolve = defaultFieldResolver } = config
         config.description = [config.description]
           .concat('Must be authenticated')
@@ -65,8 +65,8 @@ const bookType = gql`
 
   type Book @collection(name: "books", crud: true) {
     id: ObjectId
-    title: String @insert @set @unset @filter
-    author: String @insert @set @unset @filter
+    title: String @insert @set @unset @filter @textsearch
+    author: String @insert @set @unset @filter @textsearch
     tags: [String] @insert @set @unset @filter
     category: Category @insert @set @unset @filter
   }
@@ -91,6 +91,8 @@ const resolvers = {
     ...bookMutationResolvers,
     ...authorMutationResolvers,
   },
+  Book: bookResolvers,
+  Author: authorResolvers
 }
 
 
@@ -99,7 +101,7 @@ const schema = makeExecutableSchema({
     requireResolversToMatchSchema: 'ignore',
   },
   typeDefs: [mongoTypeDefs, bookType],
-  schemaTransforms: [authDirectiveTransformer],
+  // schemaTransforms: [authDirectiveTransformer],
   resolvers,
 })
 
@@ -110,11 +112,11 @@ const augmented = makeAugmentedSchema({
 
 const context = async (req: any) => {
   const userId = req?.headers?.['x-auth-token'] ?? ''
-  // const db = (await mongoConnect('mongodb://localhost:27017')).db('test')
-  // const collections = await mongoCollectionFactory(db)
+  const db = (await mongoConnect('mongodb://localhost:27017')).db('test')
+  const collections = await mongoCollectionFactory(db)
   return {
     userId,
-    // ...collections
+    ...collections
   }
 }
 const port = 6060
@@ -122,7 +124,6 @@ const port = 6060
 new ApolloServer({
   schema: augmented,
   context,
-  playground: true,
 })
   .listen(port)
   .then(({ url }: any) => {

@@ -1,4 +1,4 @@
-import { mergeSchemas } from '@graphql-tools/merge'
+import { mergeSchemas } from '@graphql-tools/schema'
 import { MapperKind, mapSchema, ObjectTypeMapper } from '@graphql-tools/utils'
 import {
   GraphQLInputObjectType,
